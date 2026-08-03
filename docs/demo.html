@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EcoFlow Flow Card — demo</title>
+<style>
+  :root {
+    --primary-text-color: #212121;
+    --secondary-text-color: #727272;
+    --divider-color: #e0e0e0;
+    --card-background-color: #fff;
+    --ha-card-background: #fff;
+    --primary-color: #03a9f4;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --primary-text-color: #e1e1e1;
+      --secondary-text-color: #9b9b9b;
+      --divider-color: #3f3f3f;
+      --card-background-color: #1c1c1c;
+      --ha-card-background: #1c1c1c;
+      background: #111;
+    }
+  }
+  body { font-family: Roboto, system-ui, sans-serif; margin: 0; padding: 24px; background: var(--ha-card-background); }
+  .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); max-width: 1200px; margin: 0 auto; }
+  h2 { font-size: 14px; color: var(--secondary-text-color); font-weight: 600; margin: 0 0 8px; }
+</style>
+</head>
+<body>
+
+<script>
+  // Minimal ha-card stand-in so the card renders outside Home Assistant.
+  class HaCard extends HTMLElement {
+    static get observedAttributes() { return ["header"]; }
+    connectedCallback() { this._paint(); }
+    attributeChangedCallback() { this._paint(); }
+    _paint() {
+      if (!this._root) {
+        this._root = this.attachShadow({ mode: "open" });
+        this._root.innerHTML = `<style>
+          :host { display:block; background: var(--ha-card-background, #fff);
+                  border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,.16); overflow:hidden; }
+          .hdr { padding: 16px 16px 0; font-size: 20px; color: var(--primary-text-color); }
+        </style><div class="hdr" hidden></div><slot></slot>`;
+      }
+      const h = this._root.querySelector(".hdr");
+      const t = this.getAttribute("header");
+      h.hidden = !t; h.textContent = t || "";
+    }
+  }
+  customElements.define("ha-card", HaCard);
+
+  const S = (state, unit) => ({ state: String(state), attributes: unit ? { unit_of_measurement: unit } : {} });
+
+  const SCENES = {
+    "Midday — charging the battery": {
+      "sensor.powerstream_solar_total": S(685, "W"),
+      "sensor.powerstream_solar_1_watts": S(342, "W"),
+      "sensor.powerstream_solar_2_watts": S(343, "W"),
+      "sensor.powerstream_inverter_output_watts": S(96, "W"),
+      "sensor.powerstream_battery_input_watts": S(-568, "W"),
+      "sensor.delta_pro_battery_level": S(72, "%"),
+      "sensor.delta_pro_ac_in_power": S(0, "W"),
+      "sensor.delta_pro_ac_out_power": S(15, "W"),
+      "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+    },
+    "Afternoon — supply 200 W, battery full": {
+      "sensor.powerstream_solar_total": S(534, "W"),
+      "sensor.powerstream_solar_1_watts": S(268, "W"),
+      "sensor.powerstream_solar_2_watts": S(266, "W"),
+      "sensor.powerstream_inverter_output_watts": S(534, "W"),
+      "sensor.powerstream_battery_input_watts": S(0, "W"),
+      "sensor.delta_pro_battery_level": S(95, "%"),
+      "sensor.delta_pro_ac_in_power": S(0, "W"),
+      "sensor.delta_pro_ac_out_power": S(15, "W"),
+      "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+    },
+    "Night — the battery feeds the house": {
+      "sensor.powerstream_solar_total": S(0, "W"),
+      "sensor.powerstream_solar_1_watts": S(0, "W"),
+      "sensor.powerstream_solar_2_watts": S(0, "W"),
+      "sensor.powerstream_inverter_output_watts": S(196, "W"),
+      "sensor.powerstream_battery_input_watts": S(217, "W"),
+      "sensor.delta_pro_battery_level": S(34, "%"),
+      "sensor.delta_pro_ac_in_power": S(0, "W"),
+      "sensor.delta_pro_ac_out_power": S(14, "W"),
+      "sensor.delta_pro_dc_out_power": S(2.2, "W"),
+    },
+    "Grid top-up (rare)": {
+      "sensor.powerstream_solar_total": S(0, "W"),
+      "sensor.powerstream_solar_1_watts": S(0, "W"),
+      "sensor.powerstream_solar_2_watts": S(0, "W"),
+      "sensor.powerstream_inverter_output_watts": S(0, "W"),
+      "sensor.powerstream_battery_input_watts": S(0, "W"),
+      "sensor.delta_pro_battery_level": S(9, "%"),
+      "sensor.delta_pro_ac_in_power": S(220, "W"),
+      "sensor.delta_pro_ac_out_power": S(15, "W"),
+      "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+    },
+  };
+
+  const CONFIG = {
+    type: "custom:ecoflow-flow-card",
+    solar_entity: "sensor.powerstream_solar_total",
+    solar_1_entity: "sensor.powerstream_solar_1_watts",
+    solar_2_entity: "sensor.powerstream_solar_2_watts",
+    inverter_entity: "sensor.powerstream_inverter_output_watts",
+    battery_power_entity: "sensor.powerstream_battery_input_watts",
+    soc_entity: "sensor.delta_pro_battery_level",
+    grid_entity: "sensor.delta_pro_ac_in_power",
+    output_entities: ["sensor.delta_pro_ac_out_power", "sensor.delta_pro_dc_out_power"],
+    rated_power: 800,
+  };
+</script>
+
+<script src="../dist/ecoflow-flow-card.js"></script>
+
+<div class="grid" id="grid"></div>
+
+<script>
+  const grid = document.getElementById("grid");
+  const put = (name, states, extra) => {
+    const cell = document.createElement("div");
+    const h = document.createElement("h2");
+    h.textContent = name;
+    cell.appendChild(h);
+    const card = document.createElement("ecoflow-flow-card");
+    card.setConfig({ ...CONFIG, ...extra, title: name });
+    card.hass = { states, locale: { language: "en" } };
+    cell.appendChild(card);
+    grid.appendChild(cell);
+  };
+
+  for (const [name, states] of Object.entries(SCENES)) put(name, states);
+
+  // Same two states again, this time with the plain icon nodes.
+  put("Icons — midday", SCENES["Midday — charging the battery"], { device_style: "icon" });
+  put("Icons — night", SCENES["Night — the battery feeds the house"], { device_style: "icon" });
+</script>
+</body>
+</html>
