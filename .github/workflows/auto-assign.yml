@@ -1,9 +1,20 @@
 name: Auto-assign
+
 on:
   issues:
     types: [opened]
-  pull_request:
+  # pull_request_target, not pull_request: a PR opened from a fork runs with a
+  # read-only token under pull_request, so addAssignees comes back 403 while the
+  # job still reports success. Nothing is checked out here, so the elevated
+  # context carries no untrusted code.
+  pull_request_target:
     types: [opened]
+
+# Without these the default token is read-only on repositories whose default
+# workflow permissions are restricted, and the call fails the same silent way.
+permissions:
+  issues: write
+  pull-requests: write
 
 jobs:
   assign:
@@ -13,12 +24,19 @@ jobs:
         with:
           script: |
             const isIssue = !!context.payload.issue;
-            await github.rest.issues.addAssignees({
+            const number = isIssue
+              ? context.payload.issue.number
+              : context.payload.pull_request.number;
+            const res = await github.rest.issues.addAssignees({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: isIssue
-                ? context.payload.issue.number
-                : context.payload.pull_request.number,
+              issue_number: number,
               assignees: ['ADNPolymerase'],
             });
-
+            // addAssignees drops assignees it cannot apply without erroring, so
+            // the result is checked rather than assumed.
+            const applied = (res.data.assignees || []).map((a) => a.login);
+            core.info(`#${number} assignees: ${applied.join(', ') || '(none)'}`);
+            if (!applied.includes('ADNPolymerase')) {
+              core.setFailed('Assignee was not applied — check token permissions.');
+            }
