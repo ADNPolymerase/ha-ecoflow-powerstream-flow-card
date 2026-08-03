@@ -382,7 +382,7 @@ function efDetect(hass) {
 // between the inverter and the battery is the only bidirectional flow.
 const EF_R = 40;
 const EF_COLS = [78, 280, 482];
-const EF_ROWS = [76, 240];
+const EF_ROWS = [88, 252];
 const EF_GAP = 10;
 
 const EF_COLORS = {
@@ -636,15 +636,12 @@ class EcoflowFlowCard extends HTMLElement {
     parts.push(flow(cx0 + edge, ry0, cx1 - invBox.hw - EF_GAP, ry0, solar, EF_COLORS.solar, false));
     parts.push(flow(cx1 + invBox.hw + EF_GAP, ry0, cx2 - edge, ry0, inv, EF_COLORS.home, false));
 
-    /* The inverter and the battery sit in the same column, so a straight link would
-       run right through the inverter's own name and sub-label. It bows out to the
-       right instead — which also reads more like a cable than a wire. */
-    const bow = 64;
+    // Straight down the column. The inverter's own labels sit above it rather than
+    // below precisely so this link has a clear run.
     const batColour = charging ? EF_COLORS.charge : EF_COLORS.discharge;
-    const batSpec = charging
-      ? efCubic(cx1, vTop, cx1 + bow, vTop + 6, cx1 + bow, vBot - 6, cx1, vBot)
-      : efCubic(cx1, vBot, cx1 + bow, vBot - 6, cx1 + bow, vTop + 6, cx1, vTop);
-    parts.push(drawFlow(batSpec, bat, batColour));
+    parts.push(
+      drawFlow(charging ? efLine(cx1, vTop, cx1, vBot) : efLine(cx1, vBot, cx1, vTop), bat, batColour)
+    );
     parts.push(flow(cx0 + edge, ry1, cx1 - batBox.hw - EF_GAP, ry1, grid, EF_COLORS.grid, false));
     parts.push(flow(cx1 + batBox.hw + EF_GAP, ry1, cx2 - edge, ry1, outs, EF_COLORS.outputs, false));
 
@@ -654,8 +651,7 @@ class EcoflowFlowCard extends HTMLElement {
 
     parts.push(flabel((cx0 + cx1) / 2, ry0 - 12, efFormat(solar, dec)));
     parts.push(flabel((cx1 + cx2) / 2, ry0 - 12, efFormat(inv, dec)));
-    // Just outside the bow's apex, clear of the inverter's sub-label.
-    parts.push(flabel(cx1 + 58, (vTop + vBot) / 2 + 4, efFormat(batMag, dec), "start"));
+    parts.push(flabel(cx1 + 14, (vTop + vBot) / 2 + 4, efFormat(batMag, dec), "start"));
     parts.push(flabel((cx0 + cx1) / 2, ry1 - 12, efFormat(grid, dec)));
     parts.push(flabel((cx1 + cx2) / 2, ry1 - 12, efFormat(outs, dec)));
 
@@ -663,6 +659,12 @@ class EcoflowFlowCard extends HTMLElement {
     const labels = (cx, cy, bottom, name, sub) =>
       `<text class="name" x="${cx}" y="${cy + bottom + 22}" text-anchor="middle">${efEsc(name)}</text>` +
       (sub ? `<text class="sub" x="${cx}" y="${cy + bottom + 37}" text-anchor="middle">${efEsc(sub)}</text>` : "");
+
+    // The inverter is the only node with a link leaving downwards, so its labels
+    // go above instead of below and the link gets a clear run.
+    const labelsAbove = (cx, cy, top, name, sub) =>
+      `<text class="name" x="${cx}" y="${cy - top - 25}" text-anchor="middle">${efEsc(name)}</text>` +
+      (sub ? `<text class="sub" x="${cx}" y="${cy - top - 10}" text-anchor="middle">${efEsc(sub)}</text>` : "");
 
     const wrapNode = (inner, entityId, inactive) => {
       const dim = inactive && c.dim_inactive ? ` opacity=".35"` : "";
@@ -707,17 +709,21 @@ class EcoflowFlowCard extends HTMLElement {
       parts.push(
         wrapNode(
           efDrawPowerStream(cx1, ry0, led, breathing) +
-            labels(cx1, ry0, invBox.bottom, t.inverter, invSub),
+            labelsAbove(cx1, ry0, invBox.top, t.inverter, invSub),
           c.inverter_entity,
           false
         )
       );
     } else {
       parts.push(
-        node(
-          cx1, ry0, EF_ICONS.inverter, EF_COLORS.inverter,
-          invPct === null ? "—" : `${Math.round(invPct)} %`,
-          t.inverter, invSub, c.inverter_entity, false
+        wrapNode(
+          `<circle class="disc" cx="${cx1}" cy="${ry0}" r="${EF_R}" stroke="${EF_COLORS.inverter}" stroke-width="2.5"/>
+           <g transform="translate(${cx1 - 12}, ${ry0 - 26})"><path d="${EF_ICONS.inverter}" fill="${EF_COLORS.inverter}"/></g>
+           <text class="val" x="${cx1}" y="${ry0 + 20}" text-anchor="middle">${efEsc(
+            invPct === null ? "—" : `${Math.round(invPct)} %`
+          )}</text>` + labelsAbove(cx1, ry0, EF_R, t.inverter, invSub),
+          c.inverter_entity,
+          false
         )
       );
     }
@@ -780,7 +786,7 @@ class EcoflowFlowCard extends HTMLElement {
       const span = (n - 1) * EF_CHIP_STEP;
       let startY = ry0 - span / 2;
       if (startY < 34) startY = 34;
-      if (startY + span > 300) startY = Math.max(34, 300 - span);
+      if (startY + span > 312) startY = Math.max(34, 312 - span);
       // Only claim the injection feeds these loads when it is actually flowing;
       // otherwise the chip still reports the load, on a static connector.
       const fedByInjection = inv !== null && inv > 0.5;
@@ -819,7 +825,7 @@ class EcoflowFlowCard extends HTMLElement {
     }
 
     const vbW = consumers.length ? EF_WIDE : 560;
-    const svg = `<svg viewBox="0 0 ${vbW} 336" role="img" preserveAspectRatio="xMidYMid meet">${EF_DEFS}${parts.join("")}</svg>`;
+    const svg = `<svg viewBox="0 0 ${vbW} 348" role="img" preserveAspectRatio="xMidYMid meet">${EF_DEFS}${parts.join("")}</svg>`;
     this._wrap.innerHTML = svg;
     // Fast-forward the fresh SMIL timeline to wall-clock time, so the arrowheads
     // keep their phase instead of snapping back on every state update.
