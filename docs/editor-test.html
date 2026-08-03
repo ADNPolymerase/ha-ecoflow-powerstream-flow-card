@@ -4,16 +4,15 @@
 <script>
   // Stand-ins for the Home Assistant form elements, just enough to observe
   // whether the editor tears its own DOM down.
-  class Sel extends HTMLElement {
-    constructor() { super(); this._v = ""; }
-    get value() { return this._v; }
-    set value(v) {
-      this._v = v;
-      this.dispatchEvent(new CustomEvent("selected", { detail: {} }));
+  // ha-selector reports through value-changed, like every other HA form control.
+  class Selector extends HTMLElement {
+    pick(v) {
+      this.value = v;
+      this.dispatchEvent(new CustomEvent("value-changed", { detail: { value: v }, bubbles: true }));
     }
   }
-  customElements.define("ha-select", Sel);
-  for (const tag of ["mwc-list-item", "ha-entity-picker", "ha-switch", "ha-textfield", "mwc-button"]) {
+  customElements.define("ha-selector", Selector);
+  for (const tag of ["ha-entity-picker", "ha-switch", "ha-textfield", "mwc-button"]) {
     customElements.define(tag, class extends HTMLElement {});
   }
 </script>
@@ -38,28 +37,26 @@
     ed.setConfig({ type: "custom:ecoflow-powerstream-flow-card", language: "fr", flow_style: "dashes" });
     ed.hass = hass(0);
 
-    const selBefore = ed.querySelectorAll("ha-select")[0];
+    const selBefore = ed.querySelectorAll("ha-selector")[0];
     const pickerBefore = ed.querySelector("ha-entity-picker");
 
     // Home Assistant pushes hass constantly; none of it should rebuild the DOM.
     for (let i = 1; i <= 8; i++) ed.hass = hass(i);
 
-    const selAfter = ed.querySelectorAll("ha-select")[0];
+    const selAfter = ed.querySelectorAll("ha-selector")[0];
     const pickerAfter = ed.querySelector("ha-entity-picker");
 
-    // Values resolve on a timeout, after the items are children.
     await new Promise((r) => setTimeout(r, 30));
-    const sels = Array.from(ed.querySelectorAll("ha-select"));
+    const sels = Array.from(ed.querySelectorAll("ha-selector"));
 
     // Config echo from HA must not rebuild either.
     const echoed = JSON.parse(JSON.stringify(ed._config));
     ed.setConfig(echoed);
-    const selAfterEcho = ed.querySelectorAll("ha-select")[0];
+    const selAfterEcho = ed.querySelectorAll("ha-selector")[0];
 
     // Now actually change something, the way a user would.
     emitted.length = 0;
-    const flowSel = sels[2];
-    flowSel.value = "arrows";                       // fires "selected"
+    sels[2].pick("arrows");                         // as a user picking from the dropdown
     ed.querySelector("ha-switch").dispatchEvent(new Event("change"));
 
     return {
@@ -69,7 +66,9 @@
       pickerGotFreshHass: pickerAfter.hass === undefined ? "n/a" : pickerAfter.hass.states.hasOwnProperty("sensor.dummy_8"),
       selectCount: sels.length,
       resolvedValues: sels.map((s) => s.value),
-      itemCounts: sels.map((s) => s.querySelectorAll("mwc-list-item").length),
+      optionCounts: sels.map((s) => s.selector.select.options.length),
+      optionLabels: sels[2].selector.select.options.map((o) => o.label),
+      selectorsGotHass: sels.every((s) => !!s.hass),
 
       // The part the previous harness never checked.
       eventsFired: emitted.length,

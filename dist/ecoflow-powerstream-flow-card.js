@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.2.2";
+const CARD_VERSION = "0.2.3";
 
 console.info(
   "%c ECOFLOW-POWERSTREAM-FLOW-CARD %c v" + CARD_VERSION + " ",
@@ -866,7 +866,7 @@ class EcoflowFlowCardEditor extends HTMLElement {
     // could land on an item, which makes the selects impossible to use. Only
     // the pickers actually need the new object.
     if (!this._built) this._render();
-    else this.querySelectorAll("ha-entity-picker").forEach((el) => (el.hass = hass));
+    else this.querySelectorAll("ha-entity-picker, ha-selector").forEach((el) => (el.hass = hass));
   }
 
   _emit(patch, restructure) {
@@ -886,25 +886,27 @@ class EcoflowFlowCardEditor extends HTMLElement {
     if (restructure) this._render();
   }
 
+  /* ha-selector rather than a hand-built ha-select: mwc-list-item is not
+     registered in recent Home Assistant frontends (ha-list-item replaced it), so
+     the items were inert, the control fell back to showing the raw value —
+     "arrows", "device", which reads as untranslated English — and there was
+     nothing to click. ha-selector is the supported component and is the same
+     family that makes the entity pickers work. */
   _select(key, value, options, fallback) {
-    const el = document.createElement("ha-select");
-    el.naturalMenuWidth = true;
-    options.forEach(([v, n]) => {
-      const it = document.createElement("mwc-list-item");
-      it.value = v;
-      it.textContent = n;
-      el.appendChild(it);
-    });
-    // The value can only resolve against items that are already children, so it
-    // is applied after they are appended and the element has upgraded.
-    setTimeout(() => {
-      el.value = value || fallback;
-    }, 0);
-    el.addEventListener("selected", (e) => {
-      const v = e.target.value;
+    const el = document.createElement("ha-selector");
+    el.hass = this._hass;
+    el.selector = {
+      select: {
+        mode: "dropdown",
+        options: options.map(([v, label]) => ({ value: v, label })),
+      },
+    };
+    el.value = value || fallback;
+    el.addEventListener("value-changed", (e) => {
+      e.stopPropagation();
+      const v = e.detail.value;
       if (v && v !== (this._config[key] || fallback)) this._emit({ [key]: v });
     });
-    el.addEventListener("closed", (e) => e.stopPropagation());
     return el;
   }
 
@@ -961,7 +963,7 @@ class EcoflowFlowCardEditor extends HTMLElement {
       .row { display: flex; align-items: center; gap: 12px; margin: 6px 0; }
       .lab { flex: 1 1 auto; font-size: 14px; }
       .row > *:not(.lab) { flex: 0 0 auto; }
-      ha-entity-picker, ha-textfield { flex: 1 1 60%; }
+      ha-entity-picker, ha-textfield, ha-selector { flex: 1 1 60%; }
       .hint { font-size: 12px; color: var(--secondary-text-color); margin: 2px 0 6px; }
       .chip { display:flex; align-items:center; gap:8px; margin:4px 0; }
       .chip ha-entity-picker { flex: 1 1 auto; }
