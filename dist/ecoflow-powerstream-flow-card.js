@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.1.0";
+const CARD_VERSION = "0.2.0";
 
 console.info(
   "%c ECOFLOW-POWERSTREAM-FLOW-CARD %c v" + CARD_VERSION + " ",
@@ -24,7 +24,9 @@ const EF_T = {
     gridEntity: "Grid charging power",
     outputsEntity: "Pre-summed outputs sensor",
     outputEntities: "Output sensors (summed)",
+    secConsumers: "Household loads", consumerEntities: "Metered plugs / loads", consumersHint: "Named loads the injection feeds, shown as chips off the home node. Informative only — nothing is subtracted, since no sensor measures the house. Up to 6.",
     smartPlugEntity: "Smart Plug loads", ledHint: "Drives the status LED: green while injecting (breathing when power goes to Smart Plugs), purple while the station charges, white when idle.",
+    flowStyle: "Flow style", styleArrows: "Arrowheads", styleDashes: "Dashes",
     deviceStyle: "Node style", styleDevice: "Drawn devices", styleIcon: "Icons",
     animate: "Animate the flows", showStrings: "Show both strings separately",
     dimInactive: "Dim inactive branches", decimals: "Decimals",
@@ -49,7 +51,9 @@ const EF_T = {
     gridEntity: "Puissance de charge depuis le réseau",
     outputsEntity: "Capteur de sorties déjà totalisé",
     outputEntities: "Capteurs de sortie (additionnés)",
+    secConsumers: "Consommateurs maison", consumerEntities: "Prises / charges mesurées", consumersHint: "Charges nommées que l'injection alimente, affichées en pastilles reliées au nœud Maison. Purement indicatif — rien n'est soustrait, aucun capteur ne mesure la maison. 6 maximum.",
     smartPlugEntity: "Charges des Smart Plug", ledHint: "Pilote la LED d'état : verte pendant l'injection (respiration si le courant part vers des Smart Plug), violette pendant la charge de la centrale, blanche au repos.",
+    flowStyle: "Style des flux", styleArrows: "Pointes de flèche", styleDashes: "Tirets",
     deviceStyle: "Style des nœuds", styleDevice: "Appareils dessinés", styleIcon: "Icônes",
     animate: "Animer les flux", showStrings: "Afficher les deux strings séparément",
     dimInactive: "Estomper les branches inactives", decimals: "Décimales",
@@ -74,7 +78,9 @@ const EF_T = {
     gridEntity: "Ladeleistung aus dem Netz",
     outputsEntity: "Bereits summierter Ausgangssensor",
     outputEntities: "Ausgangssensoren (summiert)",
+    secConsumers: "Hauslasten", consumerEntities: "Gemessene Steckdosen / Lasten", consumersHint: "Benannte Lasten, die die Einspeisung versorgt, als Chips am Hausknoten. Nur informativ — nichts wird abgezogen, da kein Sensor das Haus misst. Maximal 6.",
     smartPlugEntity: "Smart-Plug-Lasten", ledHint: "Steuert die Status-LED: grün bei Einspeisung (atmend, wenn Strom an Smart Plugs geht), violett beim Laden der Station, weiß im Ruhezustand.",
+    flowStyle: "Flussstil", styleArrows: "Pfeilspitzen", styleDashes: "Striche",
     deviceStyle: "Knotenstil", styleDevice: "Gezeichnete Geräte", styleIcon: "Symbole",
     animate: "Flüsse animieren", showStrings: "Beide Strings einzeln anzeigen",
     dimInactive: "Inaktive Zweige abschwächen", decimals: "Nachkommastellen",
@@ -99,7 +105,9 @@ const EF_T = {
     gridEntity: "Potencia de carga desde la red",
     outputsEntity: "Sensor de salidas ya sumado",
     outputEntities: "Sensores de salida (sumados)",
+    secConsumers: "Cargas de la casa", consumerEntities: "Enchufes / cargas medidas", consumersHint: "Cargas con nombre que alimenta la inyección, mostradas como fichas junto al nodo Casa. Solo informativo — no se resta nada, ningún sensor mide la casa. Máximo 6.",
     smartPlugEntity: "Cargas de los Smart Plug", ledHint: "Controla el LED de estado: verde durante la inyección (respiración si la corriente va a Smart Plugs), morado mientras la estación carga, blanco en reposo.",
+    flowStyle: "Estilo de los flujos", styleArrows: "Puntas de flecha", styleDashes: "Guiones",
     deviceStyle: "Estilo de los nodos", styleDevice: "Aparatos dibujados", styleIcon: "Iconos",
     animate: "Animar los flujos", showStrings: "Mostrar los dos strings por separado",
     dimInactive: "Atenuar las ramas inactivas", decimals: "Decimales",
@@ -124,7 +132,9 @@ const EF_T = {
     gridEntity: "Potenza di carica dalla rete",
     outputsEntity: "Sensore uscite già totalizzato",
     outputEntities: "Sensori di uscita (sommati)",
+    secConsumers: "Carichi domestici", consumerEntities: "Prese / carichi misurati", consumersHint: "Carichi con nome alimentati dall'immissione, mostrati come chip accanto al nodo Casa. Solo informativo — non viene sottratto nulla, nessun sensore misura la casa. Massimo 6.",
     smartPlugEntity: "Carichi degli Smart Plug", ledHint: "Pilota il LED di stato: verde durante l'immissione (respiro se la corrente va agli Smart Plug), viola durante la carica della stazione, bianco a riposo.",
+    flowStyle: "Stile dei flussi", styleArrows: "Punte di freccia", styleDashes: "Trattini",
     deviceStyle: "Stile dei nodi", styleDevice: "Apparecchi disegnati", styleIcon: "Icone",
     animate: "Animare i flussi", showStrings: "Mostrare le due string separatamente",
     dimInactive: "Attenuare i rami inattivi", decimals: "Decimali",
@@ -149,7 +159,9 @@ const EF_T = {
     gridEntity: "Laadvermogen vanaf het net",
     outputsEntity: "Reeds getotaliseerde uitgangssensor",
     outputEntities: "Uitgangssensoren (opgeteld)",
+    secConsumers: "Huisverbruikers", consumerEntities: "Gemeten stekkers / belastingen", consumersHint: "Benoemde belastingen die de invoeding voedt, getoond als chips bij de huisknoop. Alleen informatief — er wordt niets afgetrokken, geen sensor meet het huis. Maximaal 6.",
     smartPlugEntity: "Smart Plug-belasting", ledHint: "Stuurt de status-LED: groen tijdens invoeding (ademend als stroom naar Smart Plugs gaat), paars terwijl het station laadt, wit in rust.",
+    flowStyle: "Stroomstijl", styleArrows: "Pijlpunten", styleDashes: "Streepjes",
     deviceStyle: "Knoopstijl", styleDevice: "Getekende apparaten", styleIcon: "Pictogrammen",
     animate: "Stromen animeren", showStrings: "Beide strings apart tonen",
     dimInactive: "Inactieve takken dimmen", decimals: "Decimalen",
@@ -173,6 +185,7 @@ const EF_ICONS = {
 
 const EF_DEFAULTS = {
   device_style: "device",
+  flow_style: "arrows",
   rated_power: 800,
   animate: true,
   show_strings: true,
@@ -229,6 +242,98 @@ function efNum(hass, entityId) {
   if (!st) return null;
   const v = Number(st.state);
   return Number.isFinite(v) ? v : null;
+}
+
+// Household consumer chips branching off the home node.
+const EF_MAX_CONSUMERS = 6;
+const EF_CHIP_X = 566;
+const EF_CHIP_W = 150;
+const EF_CHIP_H = 38;
+const EF_CHIP_STEP = 46;
+const EF_WIDE = 728; // viewBox width once the chip column is in play
+const EF_POWER_SUFFIX = /\s+(puissance|power|leistung|potencia|potenza|vermogen)$/i;
+
+// Terminal arrowhead, used by the dash style only: a dash pattern is symmetric,
+// so without it a still frame says nothing about direction.
+function efArrow(x, y, ux, uy, color) {
+  const back = 10, half = 5.5;
+  const bx = x - ux * back, by = y - uy * back;
+  const px = -uy * half, py = ux * half;
+  return `<path d="M ${x.toFixed(1)} ${y.toFixed(1)} L ${(bx + px).toFixed(1)} ${(by + py).toFixed(1)}
+           L ${(bx - px).toFixed(1)} ${(by - py).toFixed(1)} Z" fill="${color}"/>`;
+}
+
+/* A flow path, described so it can be both drawn and sampled: sampling places the
+   static chevrons, the `d` string drives the animated ones. */
+const EF_DEG = 180 / Math.PI;
+
+function efLine(x1, y1, x2, y2) {
+  const len = Math.hypot(x2 - x1, y2 - y1) || 1;
+  const a = Math.atan2(y2 - y1, x2 - x1) * EF_DEG;
+  return {
+    d: `M ${x1} ${y1} L ${x2} ${y2}`,
+    len,
+    at: (t) => ({ x: x1 + (x2 - x1) * t, y: y1 + (y2 - y1) * t, a }),
+  };
+}
+
+function efCubic(x0, y0, x1, y1, x2, y2, x3, y3) {
+  const at = (t) => {
+    const u = 1 - t;
+    const b0 = u * u * u, b1 = 3 * u * u * t, b2 = 3 * u * t * t, b3 = t * t * t;
+    const d0 = 3 * u * u, d1 = 6 * u * t, d2 = 3 * t * t;
+    const dx = d0 * (x1 - x0) + d1 * (x2 - x1) + d2 * (x3 - x2);
+    const dy = d0 * (y1 - y0) + d1 * (y2 - y1) + d2 * (y3 - y2);
+    return {
+      x: b0 * x0 + b1 * x1 + b2 * x2 + b3 * x3,
+      y: b0 * y0 + b1 * y1 + b2 * y2 + b3 * y3,
+      a: Math.atan2(dy, dx) * EF_DEG,
+    };
+  };
+  let len = 0, prev = at(0);
+  for (let i = 1; i <= 12; i++) {
+    const p = at(i / 12);
+    len += Math.hypot(p.x - prev.x, p.y - prev.y);
+    prev = p;
+  }
+  return { d: `M ${x0} ${y0} C ${x1} ${y1}, ${x2} ${y2}, ${x3} ${y3}`, len, at };
+}
+
+const EF_CHEVRON = "M -3 -4.2 L 4.6 0 L -3 4.2 Z";
+const EF_CHEVRON_GAP = 30; // px between travelling arrowheads
+
+const EF_HAS_OFFSET_PATH =
+  typeof CSS !== "undefined" && CSS.supports && CSS.supports("offset-path", "path('M 0 0 L 1 1')");
+
+/* Arrowheads marching along the line, each rotated to follow it.
+   The card rebuilds its SVG on every state update, and an animation restarted on
+   insertion is visible: SMIL clamps a negative `begin` to zero, which piles every
+   chevron back onto the path start (measured). CSS `animation-delay` does accept
+   negative values, so the delay is derived from the wall clock — the phase then
+   carries across rebuilds and the motion stays continuous. */
+function efChevrons(spec, color, speed, animate, clock) {
+  const n = Math.max(2, Math.round(spec.len / EF_CHEVRON_GAP));
+  const dur = Math.max(0.5, spec.len / speed);
+  const moving = animate && EF_HAS_OFFSET_PATH;
+  let s = "";
+  for (let i = 0; i < n; i++) {
+    if (moving) {
+      const delay = -(((clock % dur) + (i * dur) / n) % dur);
+      s += `<path class="chev" d="${EF_CHEVRON}" fill="${color}"
+              style="offset-path:path('${spec.d}');animation-duration:${dur.toFixed(2)}s;
+                     animation-delay:${delay.toFixed(3)}s"/>`;
+    } else {
+      const p = spec.at((i + 0.5) / n);
+      s += `<path d="${EF_CHEVRON}" fill="${color}"
+              transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.a.toFixed(1)})"/>`;
+    }
+  }
+  return s;
+}
+
+function efTruncate(s, n) {
+  s = String(s == null ? "" : s);
+  return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s;
 }
 
 function efEsc(s) {
@@ -428,6 +533,7 @@ class EcoflowFlowCard extends HTMLElement {
         .flabel { fill: var(--secondary-text-color); font-size: 12px; }
         .track { stroke: var(--divider-color, #e0e0e0); stroke-width: 2; fill: none; }
         .disc  { fill: var(--card-background-color, var(--ha-card-background, #fff)); }
+        .chip  { fill: var(--card-background-color, var(--ha-card-background, #fff)); }
         .ring-bg { stroke: var(--divider-color, #e0e0e0); }
         text { font-family: var(--paper-font-body1_-_font-family, inherit); }
         /* Halo in the card colour so a flow line reads as passing behind the label. */
@@ -439,16 +545,20 @@ class EcoflowFlowCard extends HTMLElement {
         }
         .flow {
           fill: none; stroke-width: 3.5; stroke-linecap: round;
-          stroke-dasharray: 5 11;
+          stroke-dasharray: 6 10;
         }
-        .flow.anim { animation: ef-dash var(--ef-dur, 1.4s) linear infinite; }
-        .flow.rev  { animation-direction: reverse; }
+        .flow.anim { animation: ef-dash var(--ef-dur, .6s) linear infinite; }
         @keyframes ef-dash { to { stroke-dashoffset: -16; } }
+        .chev {
+          animation-name: ef-travel; animation-timing-function: linear;
+          animation-iteration-count: infinite; offset-rotate: auto;
+        }
+        @keyframes ef-travel { from { offset-distance: 0%; } to { offset-distance: 100%; } }
         /* "Breathing" green, as the manual calls it: output routed to Smart Plugs. */
         .ef-led.breathe { animation: ef-breathe 2.6s ease-in-out infinite; }
         @keyframes ef-breathe { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
         @media (prefers-reduced-motion: reduce) {
-          .flow.anim, .ef-led.breathe { animation: none; }
+          .flow.anim, .ef-led.breathe, .chev { animation: none; }
         }
       </style>
       <ha-card><div class="wrap"></div></ha-card>`;
@@ -496,18 +606,41 @@ class EcoflowFlowCard extends HTMLElement {
     const parts = [];
 
     /* ---- flows (drawn under the nodes) ---- */
-    const flow = (x1, y1, x2, y2, watts, color, reverse) => {
-      const d = `M ${x1} ${y1} L ${x2} ${y2}`;
-      let s = `<path class="track" d="${d}"/>`;
+    const arrowStyle = c.flow_style !== "dashes";
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const animating = !!c.animate && !reduce;
+
+    // Dash period is 16 units, so duration maps directly to travel speed.
+    const efDur = (w) => {
+      const ratio = Math.max(0, Math.min(1, w / rated));
+      return Math.max(0.18, Math.min(1.2, 0.45 / (0.15 + 0.85 * ratio)));
+    };
+    // Chevron travel speed in px/s, from idle-ish to the rated ceiling.
+    const efSpeed = (w) => 26 + 90 * Math.max(0, Math.min(1, w / rated));
+    const clock = (typeof performance !== "undefined" ? performance.now() : 0) / 1000;
+
+    // `spec` runs source -> destination, so nothing needs a direction special case.
+    const drawFlow = (spec, watts, color) => {
+      let s = `<path class="track" d="${spec.d}"/>`;
       const w = watts === null ? 0 : Math.abs(watts);
-      if (w > 0.5) {
-        const ratio = Math.max(0, Math.min(1, w / rated));
-        const dur = Math.max(0.35, Math.min(3, 0.9 / (0.12 + 0.88 * ratio)));
-        const cls = "flow" + (c.animate ? " anim" : "") + (reverse ? " rev" : "");
-        s += `<path class="${cls}" d="${d}" stroke="${color}" style="--ef-dur:${dur.toFixed(2)}s"/>`;
+      if (w <= 0.5) return s;
+      if (arrowStyle) {
+        s += efChevrons(spec, color, efSpeed(w), animating, clock);
+      } else {
+        s += `<path class="flow${animating ? " anim" : ""}" d="${spec.d}" stroke="${color}"
+                    style="--ef-dur:${efDur(w).toFixed(2)}s"/>`;
+        const e = spec.at(1), b = spec.at(0.98);
+        const len = Math.hypot(e.x - b.x, e.y - b.y) || 1;
+        s += efArrow(e.x, e.y, (e.x - b.x) / len, (e.y - b.y) / len, color);
       }
       return s;
     };
+
+    const flow = (x1, y1, x2, y2, watts, color, reverse) =>
+      drawFlow(reverse ? efLine(x2, y2, x1, y1) : efLine(x1, y1, x2, y2), watts, color);
 
     const [cx0, cx1, cx2] = EF_COLS;
     const [ry0, ry1] = EF_ROWS;
@@ -646,7 +779,59 @@ class EcoflowFlowCard extends HTMLElement {
       node(cx2, ry1, EF_ICONS.outputs, EF_COLORS.outputs, efFormat(outs, dec), t.outputs, "", c.outputs_entity || (c.output_entities || [])[0], outs === null || Math.abs(outs) < 0.5)
     );
 
-    const svg = `<svg viewBox="0 0 560 336" role="img" preserveAspectRatio="xMidYMid meet">${EF_DEFS}${parts.join("")}</svg>`;
+    /* ---- household consumers hanging off the home node ---- */
+    // Named loads the injection feeds. Purely informative: the card does not
+    // subtract them from anything, because nothing here measures the house.
+    const consumers = (c.home_consumers || [])
+      .map((it) => (typeof it === "string" ? { entity: it } : it || {}))
+      .filter((it) => it.entity)
+      .slice(0, EF_MAX_CONSUMERS);
+
+    if (consumers.length) {
+      const n = consumers.length;
+      const span = (n - 1) * EF_CHIP_STEP;
+      let startY = ry0 - span / 2;
+      if (startY < 34) startY = 34;
+      if (startY + span > 300) startY = Math.max(34, 300 - span);
+      // Only claim the injection feeds these loads when it is actually flowing;
+      // otherwise the chip still reports the load, on a static connector.
+      const fedByInjection = inv !== null && inv > 0.5;
+
+      consumers.forEach((item, i) => {
+        const cy = startY + i * EF_CHIP_STEP;
+        const w = efWatts(hass, item.entity);
+        const st = hass.states && hass.states[item.entity];
+        const name =
+          item.name ||
+          ((st && st.attributes && st.attributes.friendly_name) || item.entity).replace(
+            EF_POWER_SUFFIX,
+            ""
+          );
+
+        // Curved stub from the home node's right edge to the chip.
+        const x0 = cx2 + EF_R + EF_GAP;
+        const spec = efCubic(x0, ry0, x0 + 20, ry0, EF_CHIP_X - 20, cy, EF_CHIP_X, cy);
+        parts.push(drawFlow(spec, fedByInjection ? w : 0, EF_COLORS.home));
+
+        const idle = w === null || Math.abs(w) < 0.5;
+        parts.push(
+          wrapNode(
+            `<rect class="chip" x="${EF_CHIP_X}" y="${cy - EF_CHIP_H / 2}" width="${EF_CHIP_W}"
+                   height="${EF_CHIP_H}" rx="9" stroke="${EF_COLORS.home}" stroke-width="1.5"/>
+             <text class="sub" x="${EF_CHIP_X + 11}" y="${cy - 4}" text-anchor="start">${efEsc(
+              efTruncate(name, 20)
+            )}</text>
+             <text class="val" x="${EF_CHIP_X + 11}" y="${cy + 13}" text-anchor="start"
+                   font-size="14">${efEsc(efFormat(w, dec))}</text>`,
+            item.entity,
+            idle
+          )
+        );
+      });
+    }
+
+    const vbW = consumers.length ? EF_WIDE : 560;
+    const svg = `<svg viewBox="0 0 ${vbW} 336" role="img" preserveAspectRatio="xMidYMid meet">${EF_DEFS}${parts.join("")}</svg>`;
     this._wrap.innerHTML = svg;
     this._wrap.style.setProperty("--ef-cursor", c.clickable ? "pointer" : "default");
 
@@ -814,6 +999,30 @@ class EcoflowFlowCardEditor extends HTMLElement {
     });
     add(this._row(t.outputEntities, listWrap));
 
+    sec(t.secConsumers);
+    hint(t.consumersHint);
+    const cons = (c.home_consumers || []).map((it) => (typeof it === "string" ? it : it.entity));
+    const consWrap = document.createElement("div");
+    [...cons, ""].forEach((id, i) => {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      const p = document.createElement("ha-entity-picker");
+      p.hass = this._hass;
+      p.value = id;
+      p.includeDomains = ["sensor"];
+      p.allowCustomEntity = true;
+      p.addEventListener("value-changed", (e) => {
+        e.stopPropagation();
+        const next = cons.slice();
+        if (e.detail.value) next[i] = e.detail.value;
+        else next.splice(i, 1);
+        this._emit({ home_consumers: next.filter(Boolean) });
+      });
+      chip.appendChild(p);
+      consWrap.appendChild(chip);
+    });
+    add(this._row(t.consumerEntities, consWrap));
+
     sec(t.secAppearance);
 
     const styleSel = document.createElement("ha-select");
@@ -831,6 +1040,22 @@ class EcoflowFlowCardEditor extends HTMLElement {
     });
     styleSel.addEventListener("closed", (e) => e.stopPropagation());
     add(this._row(t.deviceStyle, styleSel));
+
+    const flowSel = document.createElement("ha-select");
+    flowSel.value = c.flow_style || "arrows";
+    flowSel.naturalMenuWidth = true;
+    [["arrows", t.styleArrows], ["dashes", t.styleDashes]].forEach(([v, n]) => {
+      const it = document.createElement("mwc-list-item");
+      it.value = v;
+      it.textContent = n;
+      flowSel.appendChild(it);
+    });
+    flowSel.addEventListener("selected", (e) => {
+      const v = e.target.value;
+      if (v && v !== (c.flow_style || "arrows")) this._emit({ flow_style: v });
+    });
+    flowSel.addEventListener("closed", (e) => e.stopPropagation());
+    add(this._row(t.flowStyle, flowSel));
 
     add(this._row(t.animate, this._switch("animate", c.animate)));
     add(this._row(t.showStrings, this._switch("show_strings", c.show_strings)));

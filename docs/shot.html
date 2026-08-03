@@ -12,7 +12,7 @@
   }
   html, body { margin: 0; padding: 0; background: #f2f3f5; }
   body { font-family: Roboto, "Helvetica Neue", system-ui, sans-serif; padding: 20px; }
-  #host { width: 760px; }
+  #host { width: 900px; }
 </style>
 </head>
 <body>
@@ -48,6 +48,7 @@
     "sensor.delta_pro_ac_in_power": S(0, "W"),
     "sensor.delta_pro_ac_out_power": S(15, "W"),
     "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+    "sensor.prise_frigo_atelier_power": { state: "140", attributes: { unit_of_measurement: "W", friendly_name: "Prise frigo atelier Puissance" } },
   };
 </script>
 <script src="../dist/ecoflow-powerstream-flow-card.js"></script>
@@ -67,6 +68,7 @@
     grid_entity: "sensor.delta_pro_ac_in_power",
     smart_plug_entity: "sensor.powerstream_smart_plug_loads",
     output_entities: ["sensor.delta_pro_ac_out_power", "sensor.delta_pro_dc_out_power"],
+    home_consumers: ["sensor.prise_frigo_atelier_power"],
     rated_power: 800,
   });
   card.hass = { states: STATES, locale: { language: lang } };

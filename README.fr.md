@@ -53,9 +53,18 @@ capteur que vous n'avez pas n'est exigé.
   code couleur du manuel**, et la station avec son état de charge en direct sur son propre écran.
   SVG original — il suit le thème et se met à l'échelle. `device_style: icon` remet des icônes
   simples.
+- **Le sens n'est jamais ambigu** : le flux lui-même est fait de pointes de flèche qui défilent le
+  long de la ligne, chacune orientée pour la suivre. Une capture figée — ou un navigateur en
+  `prefers-reduced-motion`, qui les fige sur place — se lit exactement comme l'animation.
+  `flow_style: dashes` remet les tirets classiques, avec une pointe de flèche en bout de course
+  pour garder le sens lisible.
 - **L'animation porte l'ordre de grandeur** : la vitesse des tirets suit la puissance rapportée à
   `rated_power`, donc un coup d'œil suffit pour distinguer 80 W de 700 W. Respecte
   `prefers-reduced-motion`.
+- **Consommateurs maison** : listez vos prises mesurées dans `home_consumers`, elles apparaissent en
+  pastilles reliées au nœud Maison, chacune avec sa branche. La branche ne s'anime que si l'onduleur
+  injecte réellement — une charge qui tourne sur le réseau affiche quand même ses watts, sur un
+  trait statique, parce que prétendre que l'injection l'alimente serait faux.
 - **Marge de l'onduleur** : en mode icônes, le nœud onduleur affiche la part du plafond utilisée,
   pas une troisième copie du chiffre déjà présent sur la flèche et sur le nœud maison.
 - **Niveau et état sont dissociés** : l'anneau (ou l'écran) est coloré par l'état de charge —
@@ -114,9 +123,11 @@ rated_power: 800
 | `battery_invert` | `false` | Inverser cette convention de signe |
 | `soc_entity` | auto | État de charge de la batterie (%) |
 | `grid_entity` | auto | Puissance de charge AC tirée du réseau |
+| `home_consumers` | — | Charges maison mesurées, en pastilles reliées au nœud Maison (6 max). Entity ids, ou `{entity, name}` |
 | `smart_plug_entity` | auto | Charges des Smart Plug — pilote l'état LED vert respiration |
 | `output_entities` | auto | Capteurs de sortie, additionnés pour le nœud sorties |
 | `outputs_entity` | — | Un capteur déjà totalisé à la place de la liste ci-dessus |
+| `flow_style` | `arrows` | `arrows` pour des pointes de flèche qui défilent, `dashes` pour des tirets |
 | `device_style` | `device` | `device` dessine les appareils, `icon` met des icônes |
 | `animate` | `true` | Animer les flux |
 | `show_strings` | `true` | Afficher les deux strings sous le nœud solaire |

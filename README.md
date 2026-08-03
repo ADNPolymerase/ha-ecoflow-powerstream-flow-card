@@ -52,8 +52,16 @@ the battery. No sensor you do not have is required.
   the manual's colour code**, and the power station with the live state of charge on its own
   display. Original SVG — it follows the theme and scales to any width. `device_style: icon` swaps
   both for plain icons.
+- **Direction is never ambiguous**: the flow itself is made of arrowheads travelling along the line,
+  each rotated to follow it. A still screenshot — or a browser with `prefers-reduced-motion`, which
+  freezes them in place — reads exactly like the animation. `flow_style: dashes` restores the
+  classic moving dashes, with a single arrowhead at the receiving end to keep direction readable.
 - **Animation carries the magnitude**: dash speed scales with power against `rated_power`, so a
   quick glance tells you 80 W from 700 W. Honours `prefers-reduced-motion`.
+- **Household loads**: list your metered plugs in `home_consumers` and they appear as chips off the
+  home node, each with its own branch. The branch only animates while the inverter is actually
+  injecting — a load running on grid power still shows its watts, on a static connector, because
+  claiming the injection feeds it would be a lie.
 - **Inverter headroom**: the icon-mode inverter node shows the share of the rated ceiling used, not
   a third copy of the number already on the arrow and the home node.
 - **Level and state are separate**: the ring (or the display) is coloured by state of charge —
@@ -112,9 +120,11 @@ rated_power: 800
 | `battery_invert` | `false` | Reverse that sign convention |
 | `soc_entity` | auto | Battery state of charge (%) |
 | `grid_entity` | auto | AC charging power drawn from the grid |
+| `home_consumers` | — | Metered household loads, as chips off the home node (max 6). Entity ids, or `{entity, name}` |
 | `smart_plug_entity` | auto | Smart Plug loads — drives the breathing-green LED state |
 | `output_entities` | auto | Output sensors, summed for the outputs node |
 | `outputs_entity` | — | A single pre-summed sensor instead of the list above |
+| `flow_style` | `arrows` | `arrows` for travelling arrowheads, `dashes` for moving dashes |
 | `device_style` | `device` | `device` draws the units, `icon` uses plain icons |
 | `animate` | `true` | Animate the flows |
 | `show_strings` | `true` | Show both strings under the solar node |

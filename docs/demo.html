@@ -54,6 +54,7 @@
   customElements.define("ha-card", HaCard);
 
   const S = (state, unit) => ({ state: String(state), attributes: unit ? { unit_of_measurement: unit } : {} });
+  const N = (state, unit, name) => ({ state: String(state), attributes: { unit_of_measurement: unit, friendly_name: name } });
 
   const SCENES = {
     "Morning — all solar to the battery · LED purple": {
@@ -67,6 +68,8 @@
       "sensor.delta_pro_ac_in_power": S(0, "W"),
       "sensor.delta_pro_ac_out_power": S(15, "W"),
       "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+      "sensor.prise_frigo_atelier_power": N(140, "W", "Prise frigo atelier Puissance"),
+      "sensor.prise_cave_power": N(0, "W", "Prise Cave Puissance"),
     },
     "Feeding Smart Plugs · LED breathing green": {
       "sensor.powerstream_solar_total": S(612, "W"),
@@ -79,6 +82,8 @@
       "sensor.delta_pro_ac_in_power": S(0, "W"),
       "sensor.delta_pro_ac_out_power": S(15, "W"),
       "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+      "sensor.prise_frigo_atelier_power": N(140, "W", "Prise frigo atelier Puissance"),
+      "sensor.prise_cave_power": N(0, "W", "Prise Cave Puissance"),
     },
     "Midday — charging the battery · LED green": {
       "sensor.powerstream_solar_total": S(685, "W"),
@@ -91,6 +96,8 @@
       "sensor.delta_pro_ac_in_power": S(0, "W"),
       "sensor.delta_pro_ac_out_power": S(15, "W"),
       "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+      "sensor.prise_frigo_atelier_power": N(140, "W", "Prise frigo atelier Puissance"),
+      "sensor.prise_cave_power": N(0, "W", "Prise Cave Puissance"),
     },
     "Afternoon — supply 200 W, battery full": {
       "sensor.powerstream_solar_total": S(534, "W"),
@@ -103,6 +110,8 @@
       "sensor.delta_pro_ac_in_power": S(0, "W"),
       "sensor.delta_pro_ac_out_power": S(15, "W"),
       "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+      "sensor.prise_frigo_atelier_power": N(140, "W", "Prise frigo atelier Puissance"),
+      "sensor.prise_cave_power": N(0, "W", "Prise Cave Puissance"),
     },
     "Night — battery feeds the house · LED green": {
       "sensor.powerstream_solar_total": S(0, "W"),
@@ -115,6 +124,8 @@
       "sensor.delta_pro_ac_in_power": S(0, "W"),
       "sensor.delta_pro_ac_out_power": S(14, "W"),
       "sensor.delta_pro_dc_out_power": S(2.2, "W"),
+      "sensor.prise_frigo_atelier_power": N(140, "W", "Prise frigo atelier Puissance"),
+      "sensor.prise_cave_power": N(0, "W", "Prise Cave Puissance"),
     },
     "Grid top-up · LED white": {
       "sensor.powerstream_solar_total": S(0, "W"),
@@ -127,6 +138,8 @@
       "sensor.delta_pro_ac_in_power": S(220, "W"),
       "sensor.delta_pro_ac_out_power": S(15, "W"),
       "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+      "sensor.prise_frigo_atelier_power": N(140, "W", "Prise frigo atelier Puissance"),
+      "sensor.prise_cave_power": N(0, "W", "Prise Cave Puissance"),
     },
   };
 
@@ -141,6 +154,7 @@
     grid_entity: "sensor.delta_pro_ac_in_power",
     smart_plug_entity: "sensor.powerstream_smart_plug_loads",
     output_entities: ["sensor.delta_pro_ac_out_power", "sensor.delta_pro_dc_out_power"],
+    home_consumers: ["sensor.prise_frigo_atelier_power", "sensor.prise_cave_power"],
     rated_power: 800,
   };
 </script>
@@ -168,6 +182,11 @@
   // Same two states again, this time with the plain icon nodes.
   put("Icons — midday", SCENES["Midday — charging the battery · LED green"], { device_style: "icon" });
   put("Icons — night", SCENES["Night — battery feeds the house · LED green"], { device_style: "icon" });
+
+  // Same state in the alternative flow style.
+  put("Dash style", SCENES["Feeding Smart Plugs · LED breathing green"], { flow_style: "dashes" });
+  put("Dash style · icons", SCENES["Night — battery feeds the house · LED green"],
+      { flow_style: "dashes", device_style: "icon" });
 </script>
 </body>
 </html>
