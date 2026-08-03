@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.2.0";
+const CARD_VERSION = "0.2.1";
 
 console.info(
   "%c ECOFLOW-POWERSTREAM-FLOW-CARD %c v" + CARD_VERSION + " ",
@@ -847,21 +847,54 @@ class EcoflowFlowCard extends HTMLElement {
 
 class EcoflowFlowCardEditor extends HTMLElement {
   setConfig(config) {
-    this._config = { ...EF_DEFAULTS, ...config };
-    this._render();
+    const next = { ...EF_DEFAULTS, ...config };
+    // Home Assistant echoes back the config we just emitted. Rebuilding on that
+    // echo would tear down whatever control the user is still interacting with.
+    const unchanged = JSON.stringify(next) === JSON.stringify(this._config);
+    this._config = next;
+    if (!unchanged || !this._built) this._render();
   }
 
   set hass(hass) {
     this._hass = hass;
-    this._render();
+    // hass lands on every state change — several times a second on a busy
+    // instance. Rebuilding here would close any open dropdown before a click
+    // could land on an item, which makes the selects impossible to use. Only
+    // the pickers actually need the new object.
+    if (!this._built) this._render();
+    else this.querySelectorAll("ha-entity-picker").forEach((el) => (el.hass = hass));
   }
 
-  _emit(patch) {
+  _emit(patch, restructure) {
     this._config = { ...this._config, ...patch };
     const ev = new CustomEvent("config-changed", { bubbles: true, composed: true });
     ev.detail = { config: this._config };
     this.dispatchEvent(ev);
-    this._render();
+    // Controls already show what the user just did; only a changed row count
+    // needs the DOM rebuilt.
+    if (restructure) this._render();
+  }
+
+  _select(key, value, options, fallback) {
+    const el = document.createElement("ha-select");
+    el.naturalMenuWidth = true;
+    options.forEach(([v, n]) => {
+      const it = document.createElement("mwc-list-item");
+      it.value = v;
+      it.textContent = n;
+      el.appendChild(it);
+    });
+    // The value can only resolve against items that are already children, so it
+    // is applied after they are appended and the element has upgraded.
+    setTimeout(() => {
+      el.value = value || fallback;
+    }, 0);
+    el.addEventListener("selected", (e) => {
+      const v = e.target.value;
+      if (v && v !== (this._config[key] || fallback)) this._emit({ [key]: v });
+    });
+    el.addEventListener("closed", (e) => e.stopPropagation());
+    return el;
   }
 
   _row(label, node) {
@@ -908,6 +941,7 @@ class EcoflowFlowCardEditor extends HTMLElement {
 
   _render() {
     if (!this._hass || !this._config) return;
+    this._built = true;
     const t = EF_T[efLang(this._hass, this._config)];
     const c = this._config;
 
@@ -939,21 +973,8 @@ class EcoflowFlowCardEditor extends HTMLElement {
 
     add(this._row(t.title, this._text("title", c.title)));
 
-    const langSel = document.createElement("ha-select");
-    langSel.value = c.language || "auto";
-    langSel.naturalMenuWidth = true;
-    [["auto", t.auto], ...Object.entries(EF_LANGNAMES)].forEach(([v, n]) => {
-      const it = document.createElement("mwc-list-item");
-      it.value = v;
-      it.textContent = n;
-      langSel.appendChild(it);
-    });
-    langSel.addEventListener("selected", (e) => {
-      const v = e.target.value;
-      if (v && v !== (c.language || "auto")) this._emit({ language: v });
-    });
-    langSel.addEventListener("closed", (e) => e.stopPropagation());
-    add(this._row(t.language, langSel));
+    add(this._row(t.language,
+      this._select("language", c.language, [["auto", t.auto], ...Object.entries(EF_LANGNAMES)], "auto")));
 
     sec(t.secSolar);
     add(this._row(t.solarEntity, this._entityPicker("solar_entity", c.solar_entity)));
@@ -992,7 +1013,7 @@ class EcoflowFlowCardEditor extends HTMLElement {
         const next = list.slice();
         if (e.detail.value) next[i] = e.detail.value;
         else next.splice(i, 1);
-        this._emit({ output_entities: next.filter(Boolean) });
+        this._emit({ output_entities: next.filter(Boolean) }, true);
       });
       chip.appendChild(p);
       listWrap.appendChild(chip);
@@ -1016,7 +1037,7 @@ class EcoflowFlowCardEditor extends HTMLElement {
         const next = cons.slice();
         if (e.detail.value) next[i] = e.detail.value;
         else next.splice(i, 1);
-        this._emit({ home_consumers: next.filter(Boolean) });
+        this._emit({ home_consumers: next.filter(Boolean) }, true);
       });
       chip.appendChild(p);
       consWrap.appendChild(chip);
@@ -1025,37 +1046,11 @@ class EcoflowFlowCardEditor extends HTMLElement {
 
     sec(t.secAppearance);
 
-    const styleSel = document.createElement("ha-select");
-    styleSel.value = c.device_style || "device";
-    styleSel.naturalMenuWidth = true;
-    [["device", t.styleDevice], ["icon", t.styleIcon]].forEach(([v, n]) => {
-      const it = document.createElement("mwc-list-item");
-      it.value = v;
-      it.textContent = n;
-      styleSel.appendChild(it);
-    });
-    styleSel.addEventListener("selected", (e) => {
-      const v = e.target.value;
-      if (v && v !== (c.device_style || "device")) this._emit({ device_style: v });
-    });
-    styleSel.addEventListener("closed", (e) => e.stopPropagation());
-    add(this._row(t.deviceStyle, styleSel));
+    add(this._row(t.deviceStyle,
+      this._select("device_style", c.device_style, [["device", t.styleDevice], ["icon", t.styleIcon]], "device")));
 
-    const flowSel = document.createElement("ha-select");
-    flowSel.value = c.flow_style || "arrows";
-    flowSel.naturalMenuWidth = true;
-    [["arrows", t.styleArrows], ["dashes", t.styleDashes]].forEach(([v, n]) => {
-      const it = document.createElement("mwc-list-item");
-      it.value = v;
-      it.textContent = n;
-      flowSel.appendChild(it);
-    });
-    flowSel.addEventListener("selected", (e) => {
-      const v = e.target.value;
-      if (v && v !== (c.flow_style || "arrows")) this._emit({ flow_style: v });
-    });
-    flowSel.addEventListener("closed", (e) => e.stopPropagation());
-    add(this._row(t.flowStyle, flowSel));
+    add(this._row(t.flowStyle,
+      this._select("flow_style", c.flow_style, [["arrows", t.styleArrows], ["dashes", t.styleDashes]], "arrows")));
 
     add(this._row(t.animate, this._switch("animate", c.animate)));
     add(this._row(t.showStrings, this._switch("show_strings", c.show_strings)));

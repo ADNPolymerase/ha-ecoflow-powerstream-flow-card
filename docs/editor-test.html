@@ -1,0 +1,63 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>editor test</title></head>
+<body>
+<script>
+  // Stand-ins for the Home Assistant form elements, just enough to observe
+  // whether the editor tears its own DOM down.
+  class Sel extends HTMLElement {
+    constructor() { super(); this._v = ""; }
+    get value() { return this._v; }
+    set value(v) {
+      this._v = v;
+      this.dispatchEvent(new CustomEvent("selected", { detail: {} }));
+    }
+  }
+  customElements.define("ha-select", Sel);
+  for (const tag of ["mwc-list-item", "ha-entity-picker", "ha-switch", "ha-textfield", "mwc-button"]) {
+    customElements.define(tag, class extends HTMLElement {});
+  }
+</script>
+<script src="../dist/ecoflow-powerstream-flow-card.js"></script>
+<div id="host"></div>
+<script>
+  const hass = (n) => ({
+    states: { ["sensor.dummy_" + n]: { state: "1", attributes: { unit_of_measurement: "W" } } },
+    locale: { language: "fr" },
+  });
+
+  window.runTest = async () => {
+    const ed = document.createElement("ecoflow-powerstream-flow-card-editor");
+    document.getElementById("host").appendChild(ed);
+    ed.setConfig({ type: "custom:ecoflow-powerstream-flow-card", language: "fr", flow_style: "dashes" });
+    ed.hass = hass(0);
+
+    const selBefore = ed.querySelectorAll("ha-select")[0];
+    const pickerBefore = ed.querySelector("ha-entity-picker");
+
+    // Home Assistant pushes hass constantly; none of it should rebuild the DOM.
+    for (let i = 1; i <= 8; i++) ed.hass = hass(i);
+
+    const selAfter = ed.querySelectorAll("ha-select")[0];
+    const pickerAfter = ed.querySelector("ha-entity-picker");
+
+    // Values resolve on a timeout, after the items are children.
+    await new Promise((r) => setTimeout(r, 30));
+    const sels = Array.from(ed.querySelectorAll("ha-select"));
+
+    // Config echo from HA must not rebuild either.
+    const echoed = JSON.parse(JSON.stringify(ed._config));
+    ed.setConfig(echoed);
+    const selAfterEcho = ed.querySelectorAll("ha-select")[0];
+
+    return {
+      selectSurvivesHassUpdates: selBefore === selAfter,
+      pickerSurvivesHassUpdates: pickerBefore === pickerAfter,
+      selectSurvivesConfigEcho: selBefore === selAfterEcho,
+      pickerGotFreshHass: pickerAfter.hass === undefined ? "n/a" : pickerAfter.hass.states.hasOwnProperty("sensor.dummy_8"),
+      selectCount: sels.length,
+      resolvedValues: sels.map((s) => s.value),
+      itemCounts: sels.map((s) => s.querySelectorAll("mwc-list-item").length),
+    };
+  };
+</script>
+</body></html>
