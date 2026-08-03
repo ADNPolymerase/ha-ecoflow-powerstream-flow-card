@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.2.1";
+const CARD_VERSION = "0.2.2";
 
 console.info(
   "%c ECOFLOW-POWERSTREAM-FLOW-CARD %c v" + CARD_VERSION + " ",
@@ -554,9 +554,13 @@ class EcoflowFlowCard extends HTMLElement {
 
   _more(entityId) {
     if (!entityId || !this._config.clickable) return;
-    const ev = new Event("hass-more-info", { bubbles: true, composed: true });
-    ev.detail = { entityId };
-    this.dispatchEvent(ev);
+    this.dispatchEvent(
+      new CustomEvent("hass-more-info", {
+        detail: { entityId },
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 
   _update() {
@@ -867,9 +871,16 @@ class EcoflowFlowCardEditor extends HTMLElement {
 
   _emit(patch, restructure) {
     this._config = { ...this._config, ...patch };
-    const ev = new CustomEvent("config-changed", { bubbles: true, composed: true });
-    ev.detail = { config: this._config };
-    this.dispatchEvent(ev);
+    // detail has to go through the constructor: CustomEvent exposes it as a
+    // readonly accessor, so assigning it afterwards is silently dropped and
+    // Home Assistant receives an event with nothing to apply.
+    this.dispatchEvent(
+      new CustomEvent("config-changed", {
+        detail: { config: this._config },
+        bubbles: true,
+        composed: true,
+      })
+    );
     // Controls already show what the user just did; only a changed row count
     // needs the DOM rebuilt.
     if (restructure) this._render();

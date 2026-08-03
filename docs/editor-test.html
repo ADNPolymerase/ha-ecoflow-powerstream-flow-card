@@ -28,6 +28,13 @@
   window.runTest = async () => {
     const ed = document.createElement("ecoflow-powerstream-flow-card-editor");
     document.getElementById("host").appendChild(ed);
+
+    // Home Assistant listens for this and applies detail.config. An event whose
+    // detail is null leaves the card untouched, which looks exactly like a dead
+    // UI — so the payload is what has to be asserted, not just the firing.
+    const emitted = [];
+    ed.addEventListener("config-changed", (e) => emitted.push(e.detail));
+
     ed.setConfig({ type: "custom:ecoflow-powerstream-flow-card", language: "fr", flow_style: "dashes" });
     ed.hass = hass(0);
 
@@ -49,6 +56,12 @@
     ed.setConfig(echoed);
     const selAfterEcho = ed.querySelectorAll("ha-select")[0];
 
+    // Now actually change something, the way a user would.
+    emitted.length = 0;
+    const flowSel = sels[2];
+    flowSel.value = "arrows";                       // fires "selected"
+    ed.querySelector("ha-switch").dispatchEvent(new Event("change"));
+
     return {
       selectSurvivesHassUpdates: selBefore === selAfter,
       pickerSurvivesHassUpdates: pickerBefore === pickerAfter,
@@ -57,6 +70,16 @@
       selectCount: sels.length,
       resolvedValues: sels.map((s) => s.value),
       itemCounts: sels.map((s) => s.querySelectorAll("mwc-list-item").length),
+
+      // The part the previous harness never checked.
+      eventsFired: emitted.length,
+      everyEventHasDetail: emitted.length > 0 && emitted.every((d) => d && d.config),
+      flowStyleReachedConfig: emitted.some((d) => d && d.config && d.config.flow_style === "arrows"),
+      customEventDetailIsReadonly: (() => {
+        const e = new CustomEvent("probe", { bubbles: true });
+        e.detail = { config: 1 };
+        return e.detail === null;      // true => assigning after construction is dropped
+      })(),
     };
   };
 </script>
