@@ -159,7 +159,11 @@
   };
 </script>
 
-<script src="../dist/ecoflow-powerstream-flow-card.js"></script>
+<script>
+  // Cache-busted so a local preview always picks up the freshly built file.
+  document.write('<scr' + 'ipt src="../dist/ecoflow-powerstream-flow-card.js?t='
+    + Date.now() + '"><\/scr' + 'ipt>');
+</script>
 
 <div class="grid" id="grid"></div>
 

@@ -253,16 +253,6 @@ const EF_CHIP_STEP = 46;
 const EF_WIDE = 728; // viewBox width once the chip column is in play
 const EF_POWER_SUFFIX = /\s+(puissance|power|leistung|potencia|potenza|vermogen)$/i;
 
-// Terminal arrowhead, used by the dash style only: a dash pattern is symmetric,
-// so without it a still frame says nothing about direction.
-function efArrow(x, y, ux, uy, color) {
-  const back = 10, half = 5.5;
-  const bx = x - ux * back, by = y - uy * back;
-  const px = -uy * half, py = ux * half;
-  return `<path d="M ${x.toFixed(1)} ${y.toFixed(1)} L ${(bx + px).toFixed(1)} ${(by + py).toFixed(1)}
-           L ${(bx - px).toFixed(1)} ${(by - py).toFixed(1)} Z" fill="${color}"/>`;
-}
-
 /* A flow path, described so it can be both drawn and sampled: sampling places the
    static chevrons, the `d` string drives the animated ones. */
 const EF_DEG = 180 / Math.PI;
@@ -302,26 +292,26 @@ function efCubic(x0, y0, x1, y1, x2, y2, x3, y3) {
 const EF_CHEVRON = "M -3 -4.2 L 4.6 0 L -3 4.2 Z";
 const EF_CHEVRON_GAP = 30; // px between travelling arrowheads
 
-const EF_HAS_OFFSET_PATH =
-  typeof CSS !== "undefined" && CSS.supports && CSS.supports("offset-path", "path('M 0 0 L 1 1')");
-
 /* Arrowheads marching along the line, each rotated to follow it.
-   The card rebuilds its SVG on every state update, and an animation restarted on
-   insertion is visible: SMIL clamps a negative `begin` to zero, which piles every
-   chevron back onto the path start (measured). CSS `animation-delay` does accept
-   negative values, so the delay is derived from the wall clock — the phase then
-   carries across rebuilds and the motion stays continuous. */
-function efChevrons(spec, color, speed, animate, clock) {
+
+   This uses SMIL rather than CSS `offset-path`: offset-path is not animated by
+   every engine a Home Assistant dashboard can end up in, and where it is not, the
+   arrowheads silently freeze. animateMotion is supported wherever inline SVG is.
+
+   SMIL's catch is that the card rebuilds its SVG on every state update, and a
+   fresh animation restarts from its begin time — piling every chevron back onto
+   the path start. Hence the positive staggered `begin` values here plus the
+   svg.setCurrentTime() call after insertion: the whole fragment is fast-forwarded
+   to wall-clock time, so the phase carries across rebuilds. */
+function efChevrons(spec, color, speed, animate) {
   const n = Math.max(2, Math.round(spec.len / EF_CHEVRON_GAP));
   const dur = Math.max(0.5, spec.len / speed);
-  const moving = animate && EF_HAS_OFFSET_PATH;
   let s = "";
   for (let i = 0; i < n; i++) {
-    if (moving) {
-      const delay = -(((clock % dur) + (i * dur) / n) % dur);
-      s += `<path class="chev" d="${EF_CHEVRON}" fill="${color}"
-              style="offset-path:path('${spec.d}');animation-duration:${dur.toFixed(2)}s;
-                     animation-delay:${delay.toFixed(3)}s"/>`;
+    if (animate) {
+      s += `<path d="${EF_CHEVRON}" fill="${color}"><animateMotion dur="${dur.toFixed(2)}s"
+              repeatCount="indefinite" rotate="auto" begin="${((i * dur) / n).toFixed(3)}s"
+              path="${spec.d}"/></path>`;
     } else {
       const p = spec.at((i + 0.5) / n);
       s += `<path d="${EF_CHEVRON}" fill="${color}"
@@ -549,16 +539,11 @@ class EcoflowFlowCard extends HTMLElement {
         }
         .flow.anim { animation: ef-dash var(--ef-dur, .6s) linear infinite; }
         @keyframes ef-dash { to { stroke-dashoffset: -16; } }
-        .chev {
-          animation-name: ef-travel; animation-timing-function: linear;
-          animation-iteration-count: infinite; offset-rotate: auto;
-        }
-        @keyframes ef-travel { from { offset-distance: 0%; } to { offset-distance: 100%; } }
         /* "Breathing" green, as the manual calls it: output routed to Smart Plugs. */
         .ef-led.breathe { animation: ef-breathe 2.6s ease-in-out infinite; }
         @keyframes ef-breathe { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
         @media (prefers-reduced-motion: reduce) {
-          .flow.anim, .ef-led.breathe, .chev { animation: none; }
+          .flow.anim, .ef-led.breathe { animation: none; }
         }
       </style>
       <ha-card><div class="wrap"></div></ha-card>`;
@@ -619,8 +604,7 @@ class EcoflowFlowCard extends HTMLElement {
       return Math.max(0.18, Math.min(1.2, 0.45 / (0.15 + 0.85 * ratio)));
     };
     // Chevron travel speed in px/s, from idle-ish to the rated ceiling.
-    const efSpeed = (w) => 26 + 90 * Math.max(0, Math.min(1, w / rated));
-    const clock = (typeof performance !== "undefined" ? performance.now() : 0) / 1000;
+    const efSpeed = (w) => 18 + 60 * Math.max(0, Math.min(1, w / rated));
 
     // `spec` runs source -> destination, so nothing needs a direction special case.
     const drawFlow = (spec, watts, color) => {
@@ -628,13 +612,10 @@ class EcoflowFlowCard extends HTMLElement {
       const w = watts === null ? 0 : Math.abs(watts);
       if (w <= 0.5) return s;
       if (arrowStyle) {
-        s += efChevrons(spec, color, efSpeed(w), animating, clock);
+        s += efChevrons(spec, color, efSpeed(w), animating);
       } else {
         s += `<path class="flow${animating ? " anim" : ""}" d="${spec.d}" stroke="${color}"
                     style="--ef-dur:${efDur(w).toFixed(2)}s"/>`;
-        const e = spec.at(1), b = spec.at(0.98);
-        const len = Math.hypot(e.x - b.x, e.y - b.y) || 1;
-        s += efArrow(e.x, e.y, (e.x - b.x) / len, (e.y - b.y) / len, color);
       }
       return s;
     };
@@ -654,9 +635,16 @@ class EcoflowFlowCard extends HTMLElement {
 
     parts.push(flow(cx0 + edge, ry0, cx1 - invBox.hw - EF_GAP, ry0, solar, EF_COLORS.solar, false));
     parts.push(flow(cx1 + invBox.hw + EF_GAP, ry0, cx2 - edge, ry0, inv, EF_COLORS.home, false));
-    parts.push(
-      flow(cx1, vTop, cx1, vBot, bat, charging ? EF_COLORS.charge : EF_COLORS.discharge, !charging)
-    );
+
+    /* The inverter and the battery sit in the same column, so a straight link would
+       run right through the inverter's own name and sub-label. It bows out to the
+       right instead — which also reads more like a cable than a wire. */
+    const bow = 64;
+    const batColour = charging ? EF_COLORS.charge : EF_COLORS.discharge;
+    const batSpec = charging
+      ? efCubic(cx1, vTop, cx1 + bow, vTop + 6, cx1 + bow, vBot - 6, cx1, vBot)
+      : efCubic(cx1, vBot, cx1 + bow, vBot - 6, cx1 + bow, vTop + 6, cx1, vTop);
+    parts.push(drawFlow(batSpec, bat, batColour));
     parts.push(flow(cx0 + edge, ry1, cx1 - batBox.hw - EF_GAP, ry1, grid, EF_COLORS.grid, false));
     parts.push(flow(cx1 + batBox.hw + EF_GAP, ry1, cx2 - edge, ry1, outs, EF_COLORS.outputs, false));
 
@@ -666,8 +654,8 @@ class EcoflowFlowCard extends HTMLElement {
 
     parts.push(flabel((cx0 + cx1) / 2, ry0 - 12, efFormat(solar, dec)));
     parts.push(flabel((cx1 + cx2) / 2, ry0 - 12, efFormat(inv, dec)));
-    // Offset to the right of the vertical run; the text halo lets the line pass behind.
-    parts.push(flabel(cx1 + 20, (vTop + vBot) / 2 + 4, efFormat(batMag, dec), "start"));
+    // Just outside the bow's apex, clear of the inverter's sub-label.
+    parts.push(flabel(cx1 + 58, (vTop + vBot) / 2 + 4, efFormat(batMag, dec), "start"));
     parts.push(flabel((cx0 + cx1) / 2, ry1 - 12, efFormat(grid, dec)));
     parts.push(flabel((cx1 + cx2) / 2, ry1 - 12, efFormat(outs, dec)));
 
@@ -833,6 +821,12 @@ class EcoflowFlowCard extends HTMLElement {
     const vbW = consumers.length ? EF_WIDE : 560;
     const svg = `<svg viewBox="0 0 ${vbW} 336" role="img" preserveAspectRatio="xMidYMid meet">${EF_DEFS}${parts.join("")}</svg>`;
     this._wrap.innerHTML = svg;
+    // Fast-forward the fresh SMIL timeline to wall-clock time, so the arrowheads
+    // keep their phase instead of snapping back on every state update.
+    const svgEl = this._wrap.querySelector("svg");
+    // Seconds within the day rather than the epoch: same continuity across
+    // rebuilds, without handing the engine a billion-second timeline.
+    if (svgEl && svgEl.setCurrentTime) svgEl.setCurrentTime((Date.now() % 86400000) / 1000);
     this._wrap.style.setProperty("--ef-cursor", c.clickable ? "pointer" : "default");
 
     if (c.clickable) {
