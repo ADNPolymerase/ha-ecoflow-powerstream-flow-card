@@ -2,13 +2,13 @@
   <img src="https://brands.home-assistant.io/ecoflow_cloud/logo.png" alt="EcoFlow" height="80">
 </p>
 
-# EcoFlow Flow Card
+# EcoFlow PowerStream Flow Card
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
-[![GitHub Release](https://img.shields.io/github/v/release/ADNPolymerase/ha-ecoflow-flow-card?sort=semver)](https://github.com/ADNPolymerase/ha-ecoflow-flow-card/releases)
-[![HACS Action](https://github.com/ADNPolymerase/ha-ecoflow-flow-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/ADNPolymerase/ha-ecoflow-flow-card/actions/workflows/hacs.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/ADNPolymerase/ha-ecoflow-powerstream-flow-card?sort=semver)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/releases)
+[![HACS Action](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/hacs.yml)
 [![HA Version](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-blue.svg)](https://www.home-assistant.io)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ADNPolymerase/ha-ecoflow-flow-card/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/blob/main/LICENSE)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg?logo=buy-me-a-coffee)](https://buymeacoffee.com/adnpolymerase)
 
 <a href="https://buymeacoffee.com/adnpolymerase" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-orange.png" alt="Buy Me A Coffee" height="60"></a>
@@ -21,7 +21,7 @@ chain is actually wired — not as a house with a meter.
 
 > 🇫🇷 [Lire en français](README.fr.md)
 
-![EcoFlow Flow Card](https://raw.githubusercontent.com/ADNPolymerase/ha-ecoflow-flow-card/main/docs/screenshot.png)
+![EcoFlow PowerStream Flow Card](https://raw.githubusercontent.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/main/docs/screenshot.png)
 
 ## Why another flow card
 
@@ -76,10 +76,10 @@ use `device_style: icon` if you would rather not have a drawing that is not your
 ## Installation (HACS)
 
 1. HACS → three dots → **Custom repositories**
-2. Add `https://github.com/ADNPolymerase/ha-ecoflow-flow-card` with category **Dashboard**
-3. Install **EcoFlow Flow Card**, then hard-refresh your browser (Ctrl+Shift+R / Cmd+Shift+R)
+2. Add `https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card` with category **Dashboard**
+3. Install **EcoFlow PowerStream Flow Card**, then hard-refresh your browser (Ctrl+Shift+R / Cmd+Shift+R)
 
-Manual alternative: copy `ecoflow-flow-card.js` from the [latest release](https://github.com/ADNPolymerase/ha-ecoflow-flow-card/releases) to `config/www/`, then add `/local/ecoflow-flow-card.js` as a JavaScript-module resource.
+Manual alternative: copy `ecoflow-powerstream-flow-card.js` from the [latest release](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/releases) to `config/www/`, then add `/local/ecoflow-powerstream-flow-card.js` as a JavaScript-module resource.
 
 ## Usage
 
@@ -87,7 +87,7 @@ Add the card from the dashboard UI (search "EcoFlow") — the sensors are auto-d
 editor offers to fill in anything missing. Or in YAML:
 
 ```yaml
-type: custom:ecoflow-flow-card
+type: custom:ecoflow-powerstream-flow-card
 solar_entity: sensor.powerstream_solar_total
 solar_1_entity: sensor.powerstream_solar_1_watts
 solar_2_entity: sensor.powerstream_solar_2_watts

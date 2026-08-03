@@ -1,7 +1,7 @@
 const CARD_VERSION = "0.1.0";
 
 console.info(
-  "%c ECOFLOW-FLOW-CARD %c v" + CARD_VERSION + " ",
+  "%c ECOFLOW-POWERSTREAM-FLOW-CARD %c v" + CARD_VERSION + " ",
   "color:white;background:#1a6dd4;font-weight:700;",
   "color:#1a6dd4;background:white;font-weight:700;"
 );
@@ -369,11 +369,11 @@ const EF_DEFS = `<defs>
 
 class EcoflowFlowCard extends HTMLElement {
   static getConfigElement() {
-    return document.createElement("ecoflow-flow-card-editor");
+    return document.createElement("ecoflow-powerstream-flow-card-editor");
   }
 
   static getStubConfig(hass) {
-    return { type: "custom:ecoflow-flow-card", ...efDetect(hass) };
+    return { type: "custom:ecoflow-powerstream-flow-card", ...efDetect(hass) };
   }
 
   setConfig(config) {
@@ -819,14 +819,14 @@ class EcoflowFlowCardEditor extends HTMLElement {
   }
 }
 
-customElements.define("ecoflow-flow-card", EcoflowFlowCard);
-customElements.define("ecoflow-flow-card-editor", EcoflowFlowCardEditor);
+customElements.define("ecoflow-powerstream-flow-card", EcoflowFlowCard);
+customElements.define("ecoflow-powerstream-flow-card-editor", EcoflowFlowCardEditor);
 
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "ecoflow-flow-card",
-  name: "EcoFlow Flow Card",
+  type: "ecoflow-powerstream-flow-card",
+  name: "EcoFlow PowerStream Flow Card",
   description: "Animated power flow for an EcoFlow PowerStream + battery chain: strings, inverter, battery and outputs.",
   preview: true,
-  documentationURL: "https://github.com/ADNPolymerase/ha-ecoflow-flow-card",
+  documentationURL: "https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card",
 });

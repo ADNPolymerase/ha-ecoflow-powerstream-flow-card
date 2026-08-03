@@ -9,14 +9,14 @@ permissions:
 
 jobs:
   upload-asset:
-    name: Attach ecoflow-flow-card.js to release
+    name: Attach ecoflow-powerstream-flow-card.js to release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.release.tag_name }}
       - name: Upload card asset
-        run: gh release upload "$TAG" dist/ecoflow-flow-card.js --clobber
+        run: gh release upload "$TAG" dist/ecoflow-powerstream-flow-card.js --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.event.release.tag_name }}

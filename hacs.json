@@ -1,6 +1,6 @@
 {
-  "name": "EcoFlow Flow Card",
+  "name": "EcoFlow PowerStream Flow Card",
   "render_readme": true,
-  "filename": "ecoflow-flow-card.js",
+  "filename": "ecoflow-powerstream-flow-card.js",
   "homeassistant": "2024.1.0"
 }

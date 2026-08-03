@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>EcoFlow Flow Card — demo</title>
+<title>EcoFlow PowerStream Flow Card — demo</title>
 <style>
   :root {
     --primary-text-color: #212121;
@@ -103,7 +103,7 @@
   };
 
   const CONFIG = {
-    type: "custom:ecoflow-flow-card",
+    type: "custom:ecoflow-powerstream-flow-card",
     solar_entity: "sensor.powerstream_solar_total",
     solar_1_entity: "sensor.powerstream_solar_1_watts",
     solar_2_entity: "sensor.powerstream_solar_2_watts",
@@ -116,7 +116,7 @@
   };
 </script>
 
-<script src="../dist/ecoflow-flow-card.js"></script>
+<script src="../dist/ecoflow-powerstream-flow-card.js"></script>
 
 <div class="grid" id="grid"></div>
 
@@ -127,7 +127,7 @@
     const h = document.createElement("h2");
     h.textContent = name;
     cell.appendChild(h);
-    const card = document.createElement("ecoflow-flow-card");
+    const card = document.createElement("ecoflow-powerstream-flow-card");
     card.setConfig({ ...CONFIG, ...extra, title: name });
     card.hass = { states, locale: { language: "en" } };
     cell.appendChild(card);
