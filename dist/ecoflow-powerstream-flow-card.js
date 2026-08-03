@@ -24,6 +24,7 @@ const EF_T = {
     gridEntity: "Grid charging power",
     outputsEntity: "Pre-summed outputs sensor",
     outputEntities: "Output sensors (summed)",
+    smartPlugEntity: "Smart Plug loads", ledHint: "Drives the status LED: green while injecting (breathing when power goes to Smart Plugs), purple while the station charges, white when idle.",
     deviceStyle: "Node style", styleDevice: "Drawn devices", styleIcon: "Icons",
     animate: "Animate the flows", showStrings: "Show both strings separately",
     dimInactive: "Dim inactive branches", decimals: "Decimals",
@@ -48,6 +49,7 @@ const EF_T = {
     gridEntity: "Puissance de charge depuis le réseau",
     outputsEntity: "Capteur de sorties déjà totalisé",
     outputEntities: "Capteurs de sortie (additionnés)",
+    smartPlugEntity: "Charges des Smart Plug", ledHint: "Pilote la LED d'état : verte pendant l'injection (respiration si le courant part vers des Smart Plug), violette pendant la charge de la centrale, blanche au repos.",
     deviceStyle: "Style des nœuds", styleDevice: "Appareils dessinés", styleIcon: "Icônes",
     animate: "Animer les flux", showStrings: "Afficher les deux strings séparément",
     dimInactive: "Estomper les branches inactives", decimals: "Décimales",
@@ -72,6 +74,7 @@ const EF_T = {
     gridEntity: "Ladeleistung aus dem Netz",
     outputsEntity: "Bereits summierter Ausgangssensor",
     outputEntities: "Ausgangssensoren (summiert)",
+    smartPlugEntity: "Smart-Plug-Lasten", ledHint: "Steuert die Status-LED: grün bei Einspeisung (atmend, wenn Strom an Smart Plugs geht), violett beim Laden der Station, weiß im Ruhezustand.",
     deviceStyle: "Knotenstil", styleDevice: "Gezeichnete Geräte", styleIcon: "Symbole",
     animate: "Flüsse animieren", showStrings: "Beide Strings einzeln anzeigen",
     dimInactive: "Inaktive Zweige abschwächen", decimals: "Nachkommastellen",
@@ -96,6 +99,7 @@ const EF_T = {
     gridEntity: "Potencia de carga desde la red",
     outputsEntity: "Sensor de salidas ya sumado",
     outputEntities: "Sensores de salida (sumados)",
+    smartPlugEntity: "Cargas de los Smart Plug", ledHint: "Controla el LED de estado: verde durante la inyección (respiración si la corriente va a Smart Plugs), morado mientras la estación carga, blanco en reposo.",
     deviceStyle: "Estilo de los nodos", styleDevice: "Aparatos dibujados", styleIcon: "Iconos",
     animate: "Animar los flujos", showStrings: "Mostrar los dos strings por separado",
     dimInactive: "Atenuar las ramas inactivas", decimals: "Decimales",
@@ -120,6 +124,7 @@ const EF_T = {
     gridEntity: "Potenza di carica dalla rete",
     outputsEntity: "Sensore uscite già totalizzato",
     outputEntities: "Sensori di uscita (sommati)",
+    smartPlugEntity: "Carichi degli Smart Plug", ledHint: "Pilota il LED di stato: verde durante l'immissione (respiro se la corrente va agli Smart Plug), viola durante la carica della stazione, bianco a riposo.",
     deviceStyle: "Stile dei nodi", styleDevice: "Apparecchi disegnati", styleIcon: "Icone",
     animate: "Animare i flussi", showStrings: "Mostrare le due string separatamente",
     dimInactive: "Attenuare i rami inattivi", decimals: "Decimali",
@@ -144,6 +149,7 @@ const EF_T = {
     gridEntity: "Laadvermogen vanaf het net",
     outputsEntity: "Reeds getotaliseerde uitgangssensor",
     outputEntities: "Uitgangssensoren (opgeteld)",
+    smartPlugEntity: "Smart Plug-belasting", ledHint: "Stuurt de status-LED: groen tijdens invoeding (ademend als stroom naar Smart Plugs gaat), paars terwijl het station laadt, wit in rust.",
     deviceStyle: "Knoopstijl", styleDevice: "Getekende apparaten", styleIcon: "Pictogrammen",
     animate: "Stromen animeren", showStrings: "Beide strings apart tonen",
     dimInactive: "Inactieve takken dimmen", decimals: "Decimalen",
@@ -245,6 +251,7 @@ const EF_PATTERNS = {
   solar_1_entity: [/^sensor\..*_solar_1_watts$/],
   solar_2_entity: [/^sensor\..*_solar_2_watts$/],
   inverter_entity: [/^sensor\..*_inverter_output_watts$/],
+  smart_plug_entity: [/^sensor\..*_smart_plug_loads$/],
   battery_power_entity: [/^sensor\..*_battery_input_watts$/],
   soc_entity: [/^sensor\..*delta.*_battery_level$/, /^sensor\..*_battery_level$/],
   grid_entity: [/^sensor\..*_ac_in_power$/],
@@ -304,9 +311,24 @@ const EF_BOX = {
   deltapro: { hw: 34, top: 46, bottom: 40 },
 };
 
+/* Status-LED colours, per the PowerStream user manual (V1.3):
+     green breathing - AC output, power fed to Smart Plug(s)
+     green solid     - AC output, nothing fed to Smart Plug(s)
+     purple          - PV in and/or the station charging, no AC output
+     white solid     - powered on, no output at all
+     blue blinking   - pairing / yellow - warning / red - error
+   Only the first four are derivable from Home Assistant sensors; pairing,
+   warning and error are not exposed, so the card never invents them. */
+const EF_LED = {
+  green: "#35d07f",
+  purple: "#a259ff",
+  white: "#ffffff",
+  off: "#c2c7ce",
+};
+
 // The PowerStream: an aluminium slab, wordmark on the face, status LED at the
 // front edge and the four labelled leads (AC OUT, BATTERY, SOLAR x2) on the back.
-function efDrawPowerStream(cx, cy, ledColor, active) {
+function efDrawPowerStream(cx, cy, ledColor, breathing) {
   const x = cx - 46;
   const y = cy - 22;
   const leads = [-32, -13, 6, 24]
@@ -322,8 +344,8 @@ function efDrawPowerStream(cx, cy, ledColor, active) {
     <rect x="${x}" y="${y}" width="92" height="40" rx="9" fill="url(#efAlu)" stroke="#9aa1aa" stroke-width="1"/>
     <text x="${cx}" y="${cy + 1}" text-anchor="middle" font-size="9.5" letter-spacing="2.2"
           font-weight="700" fill="#4a4f57" stroke="none">ECOFLOW</text>
-    <rect x="${cx - 9}" y="${cy + 10}" width="18" height="4" rx="2"
-          fill="${active ? ledColor : "#c2c7ce"}"/>
+    <rect class="${breathing ? "ef-led breathe" : "ef-led"}" x="${cx - 9}" y="${cy + 10}"
+          width="18" height="4" rx="2" fill="${ledColor}" stroke="#9aa1aa" stroke-width=".6"/>
   </g>`;
 }
 
@@ -422,7 +444,12 @@ class EcoflowFlowCard extends HTMLElement {
         .flow.anim { animation: ef-dash var(--ef-dur, 1.4s) linear infinite; }
         .flow.rev  { animation-direction: reverse; }
         @keyframes ef-dash { to { stroke-dashoffset: -16; } }
-        @media (prefers-reduced-motion: reduce) { .flow.anim { animation: none; } }
+        /* "Breathing" green, as the manual calls it: output routed to Smart Plugs. */
+        .ef-led.breathe { animation: ef-breathe 2.6s ease-in-out infinite; }
+        @keyframes ef-breathe { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+        @media (prefers-reduced-motion: reduce) {
+          .flow.anim, .ef-led.breathe { animation: none; }
+        }
       </style>
       <ha-card><div class="wrap"></div></ha-card>`;
     this._card = root.querySelector("ha-card");
@@ -546,9 +573,19 @@ class EcoflowFlowCard extends HTMLElement {
     const invPct = inv === null ? null : Math.max(0, Math.min(999, (Math.abs(inv) / rated) * 100));
     const invSub = `${efFormat(inv, dec)} / ${rated} W`;
     if (asDevice) {
+      // Reproduce the documented LED states we can actually derive.
+      const plugs = efWatts(hass, c.smart_plug_entity);
+      const injecting = inv !== null && Math.abs(inv) > 0.5;
+      const takingPower = (solar !== null && solar > 0.5) || charging;
+      let led = EF_LED.off;
+      if (inv === null && solar === null && bat === null) led = EF_LED.off;
+      else if (injecting) led = EF_LED.green;
+      else if (takingPower) led = EF_LED.purple;
+      else led = EF_LED.white;
+      const breathing = injecting && plugs !== null && plugs > 0.5;
       parts.push(
         wrapNode(
-          efDrawPowerStream(cx1, ry0, EF_COLORS.charge, inv !== null && Math.abs(inv) > 0.5) +
+          efDrawPowerStream(cx1, ry0, led, breathing) +
             labels(cx1, ry0, invBox.bottom, t.inverter, invSub),
           c.inverter_entity,
           false
@@ -741,6 +778,8 @@ class EcoflowFlowCardEditor extends HTMLElement {
     sec(t.secInverter);
     add(this._row(t.inverterEntity, this._entityPicker("inverter_entity", c.inverter_entity)));
     add(this._row(t.ratedPower, this._text("rated_power", c.rated_power, "number")));
+    add(this._row(t.smartPlugEntity, this._entityPicker("smart_plug_entity", c.smart_plug_entity)));
+    hint(t.ledHint);
 
     sec(t.secBattery);
     add(this._row(t.batteryPowerEntity, this._entityPicker("battery_power_entity", c.battery_power_entity)));

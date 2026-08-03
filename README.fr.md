@@ -49,9 +49,10 @@ capteur que vous n'avez pas n'est exigé.
 - **Un seul capteur signé pilote la liaison batterie** : négatif charge la batterie, positif
   alimente l'onduleur, et la flèche change de sens et de couleur avec lui. `battery_invert: true`
   si votre intégration signe dans l'autre sens.
-- **Les appareils, dessinés** : le PowerStream en boîtier alu avec sa LED d'état allumée pendant
-  l'injection, et la station avec son état de charge en direct sur son propre écran. SVG original —
-  il suit le thème et se met à l'échelle. `device_style: icon` remet des icônes simples.
+- **Les appareils, dessinés** : le PowerStream en boîtier alu avec une **LED d'état qui reprend le
+  code couleur du manuel**, et la station avec son état de charge en direct sur son propre écran.
+  SVG original — il suit le thème et se met à l'échelle. `device_style: icon` remet des icônes
+  simples.
 - **L'animation porte l'ordre de grandeur** : la vitesse des tirets suit la puissance rapportée à
   `rated_power`, donc un coup d'œil suffit pour distinguer 80 W de 700 W. Respecte
   `prefers-reduced-motion`.
@@ -113,6 +114,7 @@ rated_power: 800
 | `battery_invert` | `false` | Inverser cette convention de signe |
 | `soc_entity` | auto | État de charge de la batterie (%) |
 | `grid_entity` | auto | Puissance de charge AC tirée du réseau |
+| `smart_plug_entity` | auto | Charges des Smart Plug — pilote l'état LED vert respiration |
 | `output_entities` | auto | Capteurs de sortie, additionnés pour le nœud sorties |
 | `outputs_entity` | — | Un capteur déjà totalisé à la place de la liste ci-dessus |
 | `device_style` | `device` | `device` dessine les appareils, `icon` met des icônes |
@@ -123,6 +125,25 @@ rated_power: 800
 | `decimals` | `0` | Décimales sur les valeurs en watts |
 | `title` | — | En-tête de la card |
 | `language` | `auto` | `auto`, `en`, `fr`, `de`, `es`, `it`, `nl` |
+
+## LED d'état
+
+Le PowerStream dessiné reprend le code couleur du
+[manuel d'utilisation PowerStream](https://websiteoss.ecoflow.com/cms/upload/2024/6/17/Micro-onduleur%20EcoFlow%20PowerStream%20Manuel%20d%E2%80%99utilisation%20V1.3%20(FR)_1718609693578.pdf),
+pour les états que Home Assistant peut réellement voir :
+
+| LED | Signification | Déduite de |
+|---|---|---|
+| 🟢 Vert, respiration | Sortie CA, électricité envoyée vers des Smart Plug | `inverter_entity` > 0 et `smart_plug_entity` > 0 |
+| 🟢 Vert, fixe | Sortie CA, rien vers les Smart Plug | `inverter_entity` > 0 |
+| 🟣 Violet | Entrée PV et/ou centrale en charge, pas de sortie CA | `inverter_entity` = 0, solaire entrant ou batterie en charge |
+| ⚪ Blanc, fixe | Sous tension, aucune sortie d'énergie | tout à 0 |
+| ⚫ Gris | Capteurs indisponibles | — |
+
+Les trois états restants du manuel — **bleu clignotant** (appairage), **jaune** (avertissement) et
+**rouge** (erreur) — ne sont pas exposés en capteurs par l'intégration : la card ne les affiche
+donc jamais plutôt que de les deviner. Une card qui afficherait « pas d'erreur » sans pouvoir le
+vérifier serait pire qu'une card qui se tait.
 
 ## Convention de signe
 

@@ -56,12 +56,37 @@
   const S = (state, unit) => ({ state: String(state), attributes: unit ? { unit_of_measurement: unit } : {} });
 
   const SCENES = {
-    "Midday — charging the battery": {
+    "Morning — all solar to the battery · LED purple": {
+      "sensor.powerstream_solar_total": S(312, "W"),
+      "sensor.powerstream_solar_1_watts": S(158, "W"),
+      "sensor.powerstream_solar_2_watts": S(154, "W"),
+      "sensor.powerstream_inverter_output_watts": S(0, "W"),
+      "sensor.powerstream_battery_input_watts": S(-305, "W"),
+      "sensor.powerstream_smart_plug_loads": S(0, "W"),
+      "sensor.delta_pro_battery_level": S(45, "%"),
+      "sensor.delta_pro_ac_in_power": S(0, "W"),
+      "sensor.delta_pro_ac_out_power": S(15, "W"),
+      "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+    },
+    "Feeding Smart Plugs · LED breathing green": {
+      "sensor.powerstream_solar_total": S(612, "W"),
+      "sensor.powerstream_solar_1_watts": S(306, "W"),
+      "sensor.powerstream_solar_2_watts": S(306, "W"),
+      "sensor.powerstream_inverter_output_watts": S(410, "W"),
+      "sensor.powerstream_battery_input_watts": S(-190, "W"),
+      "sensor.powerstream_smart_plug_loads": S(180, "W"),
+      "sensor.delta_pro_battery_level": S(64, "%"),
+      "sensor.delta_pro_ac_in_power": S(0, "W"),
+      "sensor.delta_pro_ac_out_power": S(15, "W"),
+      "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+    },
+    "Midday — charging the battery · LED green": {
       "sensor.powerstream_solar_total": S(685, "W"),
       "sensor.powerstream_solar_1_watts": S(342, "W"),
       "sensor.powerstream_solar_2_watts": S(343, "W"),
       "sensor.powerstream_inverter_output_watts": S(96, "W"),
       "sensor.powerstream_battery_input_watts": S(-568, "W"),
+      "sensor.powerstream_smart_plug_loads": S(0, "W"),
       "sensor.delta_pro_battery_level": S(72, "%"),
       "sensor.delta_pro_ac_in_power": S(0, "W"),
       "sensor.delta_pro_ac_out_power": S(15, "W"),
@@ -73,28 +98,31 @@
       "sensor.powerstream_solar_2_watts": S(266, "W"),
       "sensor.powerstream_inverter_output_watts": S(534, "W"),
       "sensor.powerstream_battery_input_watts": S(0, "W"),
+      "sensor.powerstream_smart_plug_loads": S(0, "W"),
       "sensor.delta_pro_battery_level": S(95, "%"),
       "sensor.delta_pro_ac_in_power": S(0, "W"),
       "sensor.delta_pro_ac_out_power": S(15, "W"),
       "sensor.delta_pro_dc_out_power": S(2.3, "W"),
     },
-    "Night — the battery feeds the house": {
+    "Night — battery feeds the house · LED green": {
       "sensor.powerstream_solar_total": S(0, "W"),
       "sensor.powerstream_solar_1_watts": S(0, "W"),
       "sensor.powerstream_solar_2_watts": S(0, "W"),
       "sensor.powerstream_inverter_output_watts": S(196, "W"),
       "sensor.powerstream_battery_input_watts": S(217, "W"),
+      "sensor.powerstream_smart_plug_loads": S(0, "W"),
       "sensor.delta_pro_battery_level": S(34, "%"),
       "sensor.delta_pro_ac_in_power": S(0, "W"),
       "sensor.delta_pro_ac_out_power": S(14, "W"),
       "sensor.delta_pro_dc_out_power": S(2.2, "W"),
     },
-    "Grid top-up (rare)": {
+    "Grid top-up · LED white": {
       "sensor.powerstream_solar_total": S(0, "W"),
       "sensor.powerstream_solar_1_watts": S(0, "W"),
       "sensor.powerstream_solar_2_watts": S(0, "W"),
       "sensor.powerstream_inverter_output_watts": S(0, "W"),
       "sensor.powerstream_battery_input_watts": S(0, "W"),
+      "sensor.powerstream_smart_plug_loads": S(0, "W"),
       "sensor.delta_pro_battery_level": S(9, "%"),
       "sensor.delta_pro_ac_in_power": S(220, "W"),
       "sensor.delta_pro_ac_out_power": S(15, "W"),
@@ -111,6 +139,7 @@
     battery_power_entity: "sensor.powerstream_battery_input_watts",
     soc_entity: "sensor.delta_pro_battery_level",
     grid_entity: "sensor.delta_pro_ac_in_power",
+    smart_plug_entity: "sensor.powerstream_smart_plug_loads",
     output_entities: ["sensor.delta_pro_ac_out_power", "sensor.delta_pro_dc_out_power"],
     rated_power: 800,
   };
@@ -137,8 +166,8 @@
   for (const [name, states] of Object.entries(SCENES)) put(name, states);
 
   // Same two states again, this time with the plain icon nodes.
-  put("Icons — midday", SCENES["Midday — charging the battery"], { device_style: "icon" });
-  put("Icons — night", SCENES["Night — the battery feeds the house"], { device_style: "icon" });
+  put("Icons — midday", SCENES["Midday — charging the battery · LED green"], { device_style: "icon" });
+  put("Icons — night", SCENES["Night — battery feeds the house · LED green"], { device_style: "icon" });
 </script>
 </body>
 </html>

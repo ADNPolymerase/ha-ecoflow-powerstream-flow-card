@@ -48,9 +48,10 @@ the battery. No sensor you do not have is required.
 - **One signed sensor drives the battery link**: negative charges the battery, positive feeds the
   inverter, and the arrow flips direction and colour with it. `battery_invert: true` if your
   integration signs it the other way round.
-- **The devices, drawn**: the PowerStream as its aluminium slab with the status LED lit while it
-  injects, and the power station with the live state of charge on its own display. Original SVG —
-  it follows the theme and scales to any width. `device_style: icon` swaps both for plain icons.
+- **The devices, drawn**: the PowerStream as its aluminium slab with a **status LED that follows
+  the manual's colour code**, and the power station with the live state of charge on its own
+  display. Original SVG — it follows the theme and scales to any width. `device_style: icon` swaps
+  both for plain icons.
 - **Animation carries the magnitude**: dash speed scales with power against `rated_power`, so a
   quick glance tells you 80 W from 700 W. Honours `prefers-reduced-motion`.
 - **Inverter headroom**: the icon-mode inverter node shows the share of the rated ceiling used, not
@@ -111,6 +112,7 @@ rated_power: 800
 | `battery_invert` | `false` | Reverse that sign convention |
 | `soc_entity` | auto | Battery state of charge (%) |
 | `grid_entity` | auto | AC charging power drawn from the grid |
+| `smart_plug_entity` | auto | Smart Plug loads — drives the breathing-green LED state |
 | `output_entities` | auto | Output sensors, summed for the outputs node |
 | `outputs_entity` | — | A single pre-summed sensor instead of the list above |
 | `device_style` | `device` | `device` draws the units, `icon` uses plain icons |
@@ -121,6 +123,25 @@ rated_power: 800
 | `decimals` | `0` | Decimals on watt values |
 | `title` | — | Card header |
 | `language` | `auto` | `auto`, `en`, `fr`, `de`, `es`, `it`, `nl` |
+
+## Status LED
+
+The drawn PowerStream reproduces the colour code from the
+[PowerStream user manual](https://websiteoss.ecoflow.com/cms/upload/2023/6/9/EcoFlow%20PowerStream%20Microinverter%20User%20Manual%20V1.1%20(EN)_1686293304065.pdf),
+for the states Home Assistant can actually see:
+
+| LED | Meaning | Derived from |
+|---|---|---|
+| 🟢 Green, breathing | AC output, power fed to Smart Plug(s) | `inverter_entity` > 0 and `smart_plug_entity` > 0 |
+| 🟢 Green, solid | AC output, nothing fed to Smart Plug(s) | `inverter_entity` > 0 |
+| 🟣 Purple | PV in and/or the station charging, no AC output | `inverter_entity` = 0, solar in or battery charging |
+| ⚪ White, solid | Powered on, no output at all | everything at 0 |
+| ⚫ Grey | Sensors unavailable | — |
+
+The manual's three remaining states — **blue blinking** (pairing), **yellow** (warning) and
+**red** (error) — are not exposed as sensors by the integration, so the card never shows them
+rather than guessing. A card claiming "no error" it cannot verify would be worse than a card that
+stays quiet.
 
 ## Sign convention
 
