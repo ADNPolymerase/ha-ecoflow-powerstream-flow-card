@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --primary-text-color: #212121;
+    --secondary-text-color: #727272;
+    --divider-color: #e0e0e0;
+    --card-background-color: #fff;
+    --ha-card-background: #fff;
+  }
+  html, body { margin: 0; padding: 0; background: #f2f3f5; }
+  body { font-family: Roboto, "Helvetica Neue", system-ui, sans-serif; padding: 20px; }
+  #host { width: 760px; }
+</style>
+</head>
+<body>
+<script>
+  class HaCard extends HTMLElement {
+    static get observedAttributes() { return ["header"]; }
+    connectedCallback() { this._paint(); }
+    attributeChangedCallback() { this._paint(); }
+    _paint() {
+      if (!this._root) {
+        this._root = this.attachShadow({ mode: "open" });
+        this._root.innerHTML = `<style>
+          :host { display:block; background:#fff; border-radius:12px;
+                  box-shadow:0 2px 8px rgba(0,0,0,.14); overflow:hidden; }
+          .hdr { padding:16px 16px 0; font-size:20px; color:var(--primary-text-color); }
+        </style><div class="hdr" hidden></div><slot></slot>`;
+      }
+      const h = this._root.querySelector(".hdr");
+      const t = this.getAttribute("header");
+      h.hidden = !t; h.textContent = t || "";
+    }
+  }
+  customElements.define("ha-card", HaCard);
+  const S = (v, u) => ({ state: String(v), attributes: { unit_of_measurement: u } });
+  const STATES = {
+    "sensor.powerstream_solar_total": S(685, "W"),
+    "sensor.powerstream_solar_1_watts": S(342, "W"),
+    "sensor.powerstream_solar_2_watts": S(343, "W"),
+    "sensor.powerstream_inverter_output_watts": S(410, "W"),
+    "sensor.powerstream_battery_input_watts": S(-260, "W"),
+    "sensor.powerstream_smart_plug_loads": S(0, "W"),
+    "sensor.delta_pro_battery_level": S(68, "%"),
+    "sensor.delta_pro_ac_in_power": S(0, "W"),
+    "sensor.delta_pro_ac_out_power": S(15, "W"),
+    "sensor.delta_pro_dc_out_power": S(2.3, "W"),
+  };
+</script>
+<script src="../dist/ecoflow-powerstream-flow-card.js"></script>
+<div id="host"></div>
+<script>
+  const lang = new URLSearchParams(location.search).get("lang") || "en";
+  const card = document.createElement("ecoflow-powerstream-flow-card");
+  card.setConfig({
+    type: "custom:ecoflow-powerstream-flow-card",
+    language: lang,
+    solar_entity: "sensor.powerstream_solar_total",
+    solar_1_entity: "sensor.powerstream_solar_1_watts",
+    solar_2_entity: "sensor.powerstream_solar_2_watts",
+    inverter_entity: "sensor.powerstream_inverter_output_watts",
+    battery_power_entity: "sensor.powerstream_battery_input_watts",
+    soc_entity: "sensor.delta_pro_battery_level",
+    grid_entity: "sensor.delta_pro_ac_in_power",
+    smart_plug_entity: "sensor.powerstream_smart_plug_loads",
+    output_entities: ["sensor.delta_pro_ac_out_power", "sensor.delta_pro_dc_out_power"],
+    rated_power: 800,
+  });
+  card.hass = { states: STATES, locale: { language: lang } };
+  document.getElementById("host").appendChild(card);
+</script>
+</body>
+</html>
