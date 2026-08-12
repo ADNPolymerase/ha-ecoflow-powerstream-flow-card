@@ -7,6 +7,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 [![GitHub Release](https://img.shields.io/github/v/release/ADNPolymerase/ha-ecoflow-powerstream-flow-card?sort=semver)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/releases)
 [![HACS Action](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/hacs.yml)
+[![Tests](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/test.yml/badge.svg)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/test.yml)
 [![HA Version](https://img.shields.io/badge/Home%20Assistant-2024.1%2B-blue.svg)](https://www.home-assistant.io)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/blob/main/LICENSE)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg?logo=buy-me-a-coffee)](https://buymeacoffee.com/adnpolymerase)
@@ -104,9 +105,12 @@ inverter_entity: sensor.powerstream_inverter_output_watts
 battery_power_entity: sensor.powerstream_battery_input_watts
 soc_entity: sensor.delta_pro_battery_level
 grid_entity: sensor.delta_pro_ac_in_power
+smart_plug_entity: sensor.powerstream_smart_plug_loads
 output_entities:
   - sensor.delta_pro_ac_out_power
   - sensor.delta_pro_dc_out_power
+home_consumers:
+  - sensor.workshop_fridge_power
 rated_power: 800
 ```
 
