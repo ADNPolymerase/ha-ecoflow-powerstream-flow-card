@@ -267,4 +267,139 @@ const named = render(
 contains('nom de consommateur échappé', named, 'Frigo &quot;atelier&quot; &lt;b&gt;');
 check('nom de consommateur : rien d\'injecté', /Frigo "atelier" <b>/.test(named), false);
 
+// ── 9. Silent entity loss ────────────────────────────────────────────────────
+// Home Assistant calls setConfig again after every config-changed the editor
+// emits. If that rebuilds the form, the ha-entity-picker are recreated, and a
+// fresh picker can announce an empty value before it knows its own. That empty
+// value is then written over the configured entity and the card comes back with
+// "entity not found" without anyone having touched the config.
+
+/** An editor whose created nodes actually keep their listeners. */
+function liveEditor(cfg) {
+  const nodes = [];
+  const real = document.createElement;
+  document.createElement = (t) => {
+    const n = real(t);
+    n.listeners = {};
+    n.addEventListener = (type, fn) => { (n.listeners[type] ||= []).push(fn); };
+    nodes.push(n);
+    return n;
+  };
+  const e = new Editor();
+  // The harness swallows addEventListener, so the editor's own touch listeners
+  // have to be captured before the first render wires them.
+  e.listeners = {};
+  e.addEventListener = (t, fn) => { (e.listeners[t] ||= []).push(fn); };
+  e.setConfig({ ...cfg });
+  e.hass = { states: scene(), locale: { language: 'en' } };
+  document.createElement = real;
+  return { e, nodes };
+}
+const pickers = ns => ns.filter(n => n.tagName === 'HA-ENTITY-PICKER');
+/** Interacts with the form the way a user would, through the real listeners. */
+const touch = e => (e.listeners?.focusin || []).forEach(fn => fn({}));
+const pick = (n, value) =>
+  (n?.listeners?.['value-changed'] || []).forEach(fn => fn({ detail: { value }, stopPropagation() {} }));
+/** Nodes created while running `fn` (a rebuild). */
+function created(fn) {
+  const out = []; const real = document.createElement;
+  document.createElement = (t) => {
+    const n = real(t);
+    n.listeners = {};
+    n.addEventListener = (type, f) => { (n.listeners[type] ||= []).push(f); };
+    out.push(n); return n;
+  };
+  fn(); document.createElement = real; return out;
+}
+
+{
+  const { e } = liveEditor(BASE);
+  e.innerHTML = 'SENTINELLE';
+  e.setConfig({ ...e._config });
+  check('écho identique de HA → le formulaire n\'est pas reconstruit',
+    e.innerHTML, 'SENTINELLE');
+}
+
+{
+  // HA does not promise to hand the config back with the keys in the same order.
+  const { e } = liveEditor(BASE);
+  e.innerHTML = 'SENTINELLE';
+  e.setConfig(Object.fromEntries(Object.entries(e._config).reverse()));
+  check('écho aux clés réordonnées → toujours pas de reconstruction',
+    e.innerHTML, 'SENTINELLE');
+}
+
+{
+  const { e, nodes } = liveEditor(BASE);
+  pick(pickers(nodes).find(n => n.value === 'sensor.solar_total'), '');
+  check('un picker annonçant du vide n\'efface pas l\'entité configurée',
+    e._config.solar_entity, 'sensor.solar_total');
+}
+
+{
+  const { e, nodes } = liveEditor(BASE);
+  const fresh = created(() => e._emit({ home_consumers: ['sensor.a', 'sensor.b'] }, true));
+  check('un changement de liste reconstruit bien les pickers',
+    pickers(fresh).length > 0, true);
+  pick(pickers(fresh).find(n => n.value === 'sensor.solar_total'), '');
+  check('après reconstruction, un pick vide n\'efface toujours rien',
+    e._config.solar_entity, 'sensor.solar_total');
+}
+
+{
+  // Without this wiring the guard would never lift and no entity could ever be
+  // cleared on purpose. Asserted through the listeners, not by setting the flag.
+  const { e } = liveEditor(BASE);
+  check('le formulaire écoute bien focusin / pointerdown / keydown',
+    ['focusin', 'pointerdown', 'keydown'].every(t => (e.listeners[t] || []).length > 0), true);
+  check('aucune interaction → non marqué comme touché', !!e._touched, false);
+  touch(e);
+  check('un focus dans le formulaire le marque comme touché', e._touched, true);
+}
+
+{
+  // The same risk inside the entity lists: an empty announcement would splice
+  // the row out instead of overwriting a scalar.
+  const { e, nodes } = liveEditor(BASE);
+  pick(pickers(nodes).find(n => n.value === 'sensor.ac_out'), '');
+  check('un pick vide dans une liste ne supprime pas la ligne',
+    e._config.output_entities?.join(','), 'sensor.ac_out,sensor.dc_out');
+
+  touch(e);
+  pick(pickers(nodes).find(n => n.value === 'sensor.ac_out'), '');
+  check('après interaction, la ligne peut être retirée',
+    e._config.output_entities?.join(','), 'sensor.dc_out');
+}
+
+{
+  // home_consumers carries its own copy of the guard, so it needs its own case:
+  // one list being protected says nothing about the other.
+  const CFG = { ...BASE, home_consumers: ['sensor.fridge', 'sensor.cellar'] };
+  const { e, nodes } = liveEditor(CFG);
+  pick(pickers(nodes).find(n => n.value === 'sensor.fridge'), '');
+  check('un pick vide dans les consommateurs ne supprime pas la ligne',
+    e._config.home_consumers?.join(','), 'sensor.fridge,sensor.cellar');
+
+  touch(e);
+  pick(pickers(nodes).find(n => n.value === 'sensor.fridge'), '');
+  check('après interaction, le consommateur peut être retiré',
+    e._config.home_consumers?.join(','), 'sensor.cellar');
+}
+
+{
+  // The guard must not make a deliberate clear impossible.
+  const { e, nodes } = liveEditor(BASE);
+  touch(e);
+  pick(pickers(nodes).find(n => n.value === 'sensor.grid_in'), '');
+  check('effacement volontaire après interaction → honoré',
+    e._config.grid_in ?? e._config.grid_entity, undefined);
+}
+
+{
+  // Choosing another entity must always work, touched or not.
+  const { e, nodes } = liveEditor(BASE);
+  pick(pickers(nodes).find(n => n.value === 'sensor.solar_total'), 'sensor.autre');
+  check('choisir une autre entité passe toujours', e._config.solar_entity, 'sensor.autre');
+}
+
 report();

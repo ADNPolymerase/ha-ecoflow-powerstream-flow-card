@@ -321,6 +321,16 @@ function efChevrons(spec, color, speed, animate) {
   return s;
 }
 
+/* Key order carries no meaning in a config, and Home Assistant does not promise
+   to hand it back in the order it was given. Comparing the raw JSON would see a
+   reordered echo as a change and rebuild the form for nothing. */
+function efStable(v) {
+  if (Array.isArray(v)) return v.map(efStable);
+  if (v && typeof v === "object")
+    return Object.fromEntries(Object.keys(v).sort().map((k) => [k, efStable(v[k])]));
+  return v;
+}
+
 function efTruncate(s, n) {
   s = String(s == null ? "" : s);
   return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s;
@@ -854,7 +864,8 @@ class EcoflowFlowCardEditor extends HTMLElement {
     const next = { ...EF_DEFAULTS, ...config };
     // Home Assistant echoes back the config we just emitted. Rebuilding on that
     // echo would tear down whatever control the user is still interacting with.
-    const unchanged = JSON.stringify(next) === JSON.stringify(this._config);
+    const unchanged =
+      JSON.stringify(efStable(next)) === JSON.stringify(efStable(this._config));
     this._config = next;
     if (!unchanged || !this._built) this._render();
   }
@@ -892,6 +903,28 @@ class EcoflowFlowCardEditor extends HTMLElement {
      "arrows", "device", which reads as untranslated English — and there was
      nothing to click. ha-selector is the supported component and is the same
      family that makes the entity pickers work. */
+  /* A picker that has just been recreated can announce an empty value before it
+     knows its own. Written straight through, that empty value lands on top of a
+     configured entity and the card comes back with "entity not found" without
+     anyone having touched the config. An erase is therefore only honoured once
+     the user has actually interacted with the form. */
+  _mayClear(current) {
+    return !current || !!this._touched;
+  }
+
+  _acceptsPick(key, value) {
+    if (value === (this._config[key] ?? undefined)) return false;   // echo
+    return value ? true : this._mayClear(this._config[key]);
+  }
+
+  /** Marks the form as touched, so a later empty pick is taken at face value. */
+  _wireTouch() {
+    if (this._touchWired) return;
+    this._touchWired = true;
+    const touch = () => { this._touched = true; };
+    ["focusin", "pointerdown", "keydown"].forEach((t) => this.addEventListener(t, touch));
+  }
+
   _select(key, value, options, fallback) {
     const el = document.createElement("ha-selector");
     el.hass = this._hass;
@@ -929,7 +962,8 @@ class EcoflowFlowCardEditor extends HTMLElement {
     el.allowCustomEntity = true;
     el.addEventListener("value-changed", (e) => {
       e.stopPropagation();
-      this._emit({ [key]: e.detail.value || undefined });
+      const v = e.detail.value || undefined;
+      if (this._acceptsPick(key, v)) this._emit({ [key]: v });
     });
     return el;
   }
@@ -954,6 +988,7 @@ class EcoflowFlowCardEditor extends HTMLElement {
 
   _render() {
     if (!this._hass || !this._config) return;
+    this._wireTouch();
     this._built = true;
     const t = EF_T[efLang(this._hass, this._config)];
     const c = this._config;
@@ -1023,6 +1058,7 @@ class EcoflowFlowCardEditor extends HTMLElement {
       p.allowCustomEntity = true;
       p.addEventListener("value-changed", (e) => {
         e.stopPropagation();
+        if (!e.detail.value && !this._mayClear(list[i])) return;
         const next = list.slice();
         if (e.detail.value) next[i] = e.detail.value;
         else next.splice(i, 1);
@@ -1047,6 +1083,7 @@ class EcoflowFlowCardEditor extends HTMLElement {
       p.allowCustomEntity = true;
       p.addEventListener("value-changed", (e) => {
         e.stopPropagation();
+        if (!e.detail.value && !this._mayClear(cons[i])) return;
         const next = cons.slice();
         if (e.detail.value) next[i] = e.detail.value;
         else next.splice(i, 1);
