@@ -1,4 +1,4 @@
-const CARD_VERSION = "0.2.3";
+const CARD_VERSION = "0.2.4";
 
 console.info(
   "%c ECOFLOW-POWERSTREAM-FLOW-CARD %c v" + CARD_VERSION + " ",
