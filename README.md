@@ -4,7 +4,7 @@
 
 # EcoFlow PowerStream Flow Card
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-blue.svg)](https://github.com/hacs/default)
 [![GitHub Release](https://img.shields.io/github/v/release/ADNPolymerase/ha-ecoflow-powerstream-flow-card?sort=semver)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/releases)
 [![HACS Action](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/hacs.yml)
 [![Tests](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/test.yml/badge.svg)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/test.yml)
@@ -85,9 +85,12 @@ use `device_style: icon` if you would rather not have a drawing that is not your
 
 ## Installation (HACS)
 
-1. HACS → three dots → **Custom repositories**
-2. Add `https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card` with category **Dashboard**
-3. Install **EcoFlow PowerStream Flow Card**, then hard-refresh your browser (Ctrl+Shift+R / Cmd+Shift+R)
+Available directly in HACS, no custom repository needed.
+
+1. Open **HACS**, search for **EcoFlow PowerStream Flow Card** and install it
+2. Hard-refresh your browser (Ctrl+Shift+R / Cmd+Shift+R)
+
+If the search finds nothing, HACS has not refreshed its list yet. Add it as a custom repository: HACS → three dots → **Custom repositories** → add `https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card` with category **Dashboard**.
 
 Manual alternative: copy `ecoflow-powerstream-flow-card.js` from the [latest release](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/releases) to `config/www/`, then add `/local/ecoflow-powerstream-flow-card.js` as a JavaScript-module resource.
 

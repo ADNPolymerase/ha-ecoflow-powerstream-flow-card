@@ -4,7 +4,7 @@
 
 # EcoFlow PowerStream Flow Card
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-blue.svg)](https://github.com/hacs/default)
 [![GitHub Release](https://img.shields.io/github/v/release/ADNPolymerase/ha-ecoflow-powerstream-flow-card?sort=semver)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/releases)
 [![HACS Action](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/hacs.yml)
 [![Tests](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/test.yml/badge.svg)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/test.yml)
@@ -88,9 +88,12 @@ panneau 2×2 de prises). Elle représente la famille DELTA plutôt qu'un modèle
 
 ## Installation (HACS)
 
-1. HACS → trois points → **Dépôts personnalisés**
-2. Ajouter `https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card` en catégorie **Tableau de bord**
-3. Installer **EcoFlow PowerStream Flow Card**, puis rafraîchir sans cache (Ctrl+Maj+R / Cmd+Maj+R)
+Disponible directement dans HACS, aucun dépôt personnalisé n'est nécessaire.
+
+1. Ouvrir **HACS**, chercher **EcoFlow PowerStream Flow Card** et l'installer
+2. Rafraîchir le navigateur sans cache (Ctrl+Maj+R / Cmd+Maj+R)
+
+Si la recherche ne trouve rien, c'est que HACS n'a pas encore rafraîchi sa liste. L'ajouter en dépôt personnalisé : HACS → trois points → **Dépôts personnalisés** → ajouter `https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card` en catégorie **Tableau de bord**.
 
 Alternative manuelle : copier `ecoflow-powerstream-flow-card.js` depuis la [dernière release](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/releases) dans `config/www/`, puis ajouter `/local/ecoflow-powerstream-flow-card.js` comme ressource module JavaScript.
 
