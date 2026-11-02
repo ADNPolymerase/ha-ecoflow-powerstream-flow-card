@@ -4,6 +4,8 @@
 
 # EcoFlow PowerStream Flow Card
 
+<a href="https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/blob/main/README.md"><img src="https://raw.githubusercontent.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/main/docs/lang-en.svg" alt="Read in English" height="60"></a>
+
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-blue.svg)](https://github.com/hacs/default)
 [![GitHub Release](https://img.shields.io/github/v/release/ADNPolymerase/ha-ecoflow-powerstream-flow-card?sort=semver)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/releases)
 [![HACS Action](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/hacs.yml/badge.svg)](https://github.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/actions/workflows/hacs.yml)
@@ -19,8 +21,6 @@ Multilingue (6 langues : EN, FR, DE, ES, IT, NL — détectées depuis Home Assi
 
 Une card de flux animée pour une chaîne **PowerStream + batterie EcoFlow**, dessinée telle qu'elle
 est réellement câblée — pas comme une maison avec un compteur.
-
-> 🇬🇧 [Read in English](README.md)
 
 ![EcoFlow PowerStream Flow Card](https://raw.githubusercontent.com/ADNPolymerase/ha-ecoflow-powerstream-flow-card/main/docs/screenshot.fr.png)
 
